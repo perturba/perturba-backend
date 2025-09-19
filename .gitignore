@@ -1,0 +1,75 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# Java
+*.class
+*.log
+*.ctxt
+hs_err_pid*
+replay_pid*
+
+# Gradle
+.gradle/
+**/.gradle/
+# Ignore build outputs in all modules
+**/build/
+
+# Maven (in case of mixed builds)
+**/target/
+
+# IDEs and editors
+# IntelliJ IDEA / Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Eclipse / STS
+.project
+.classpath
+.settings/
+.springBeans
+
+# NetBeans
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# VS Code
+.vscode/
+
+# Packaging outputs
+*.jar
+*.war
+*.ear
+# Ensure Gradle wrapper jar remains tracked
+!gradle/wrapper/gradle-wrapper.jar
+
+# Logs
+logs/
+log/
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+*~
+
+# Environment files (keep examples)
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Databases
+*.h2.db
+*.mv.db
