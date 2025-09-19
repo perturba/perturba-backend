@@ -73,3 +73,8 @@ log/
 # Databases
 *.h2.db
 *.mv.db
+
+**/application.properties
+**/application.yml
+**/application-*.properties
+**/application-*.yml
