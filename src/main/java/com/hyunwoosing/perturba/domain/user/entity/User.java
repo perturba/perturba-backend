@@ -1,6 +1,8 @@
 package com.hyunwoosing.perturba.domain.user.entity;
 
 import com.hyunwoosing.perturba.common.entity.BaseEntity;
+import com.hyunwoosing.perturba.domain.user.entity.enums.AuthProvider;
+import com.hyunwoosing.perturba.domain.user.entity.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -53,6 +55,7 @@ public class User extends BaseEntity {
 
     public void activate() { this.isActive = true;  }
     public void deactivate() { this.isActive = false; }
+
 
     //  equals, hashCode: id 기반
     @Override
