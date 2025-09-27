@@ -30,7 +30,7 @@ public class GuestSession extends BaseEntity {
     private Instant expiresAt;
 
     @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="user_id")
+    @JoinColumn(name="linked_user_id")
     private User linkedUser;
 
 
