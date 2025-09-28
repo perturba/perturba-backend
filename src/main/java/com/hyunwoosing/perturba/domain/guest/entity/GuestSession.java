@@ -7,16 +7,17 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Table(name = "guest_sessions")
 @Entity
 public class GuestSession extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "guest_id")
     private Long id;
 
     @Column(name = "public_token", length = 36, nullable = false, unique = true)

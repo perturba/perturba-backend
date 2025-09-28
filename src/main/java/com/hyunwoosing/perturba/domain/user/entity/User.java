@@ -13,16 +13,18 @@ import java.time.LocalDateTime;
 @Entity
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Table(name = "users")
 public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long id;
 
-    @Column(length = 255, nullable = false, unique = true)
+    @Column(name = "email", length = 255, nullable = false, unique = true)
     private String email;
 
-    @Column(length = 300)
+    @Column(name = "name", length = 300)
     private String name;
 
     @Column(name = "avatar_url", length = 300)

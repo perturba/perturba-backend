@@ -14,10 +14,12 @@ import java.time.Instant;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(exclude = "keyHashHex")
+@Table(name = "api_keys")
 @Entity
 public class ApiKey extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "api_key_id")
     private Long id;
 
     @JoinColumn(name = "user_id", nullable = false)

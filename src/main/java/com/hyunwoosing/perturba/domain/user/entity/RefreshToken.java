@@ -12,6 +12,7 @@ import java.time.Instant;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @ToString(exclude = "tokenHashHex")
+@Table(name = "refresh_tokens")
 @Entity
 public class RefreshToken extends BaseEntity {
     @Id
