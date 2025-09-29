@@ -1,7 +1,6 @@
 package com.hyunwoosing.perturba.domain.asset.entity;
 
 import com.hyunwoosing.perturba.common.entity.BaseEntity;
-import com.hyunwoosing.perturba.domain.apikey.entity.ApiKey;
 import com.hyunwoosing.perturba.domain.asset.entity.enums.AssetKind;
 import com.hyunwoosing.perturba.domain.job.entity.TransformJob;
 import com.hyunwoosing.perturba.domain.user.entity.User;
