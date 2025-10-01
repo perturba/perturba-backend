@@ -11,6 +11,12 @@ public enum CommonErrorCode implements ErrorCode{
     private final HttpStatus status;
     CommonErrorCode(HttpStatus s){ this.status = s; }
 
-    @Override public String code() { return name(); }
-    @Override public HttpStatus httpStatus() { return status; }
+    @Override
+    public String code() {
+        return name();
+    }
+    @Override
+    public HttpStatus httpStatus() {
+        return status;
+    }
 }
