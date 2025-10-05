@@ -1,9 +1,10 @@
-// com.hyunwoosing.perturba.common.security.SignedPayload.java
-package com.hyunwoosing.perturba.common.security;
+// com.hyunwoosing.perturba.common.security.signed.SignedPayload.java
+package com.hyunwoosing.perturba.common.security.signed;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hyunwoosing.perturba.common.config.props.PkceProps;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.Mac;
@@ -15,16 +16,13 @@ import java.util.Base64;
 import java.util.Map;
 
 @Component
+@RequiredArgsConstructor
 public class SignedPayload {
 
     private static final String HMAC_ALGO = "HmacSHA256";
-    private final byte[] secret;
-    private final ObjectMapper objectMapper;
 
-    public SignedPayload(PkceProps props, ObjectMapper objectMapper) {
-        this.secret = props.signSecret().getBytes(StandardCharsets.UTF_8);
-        this.objectMapper = objectMapper;
-    }
+    private final PkceProps pkceProps;
+    private final ObjectMapper objectMapper;
 
     public String sign(Map<String, Object> payload, Duration ttl) {
         try {
@@ -34,7 +32,7 @@ public class SignedPayload {
             String b64Body = Base64.getUrlEncoder().withoutPadding().encodeToString(body.getBytes(StandardCharsets.UTF_8));
 
             Mac mac = Mac.getInstance(HMAC_ALGO);
-            mac.init(new SecretKeySpec(secret, HMAC_ALGO));
+            mac.init(new SecretKeySpec(pkceProps.signSecret().getBytes(StandardCharsets.UTF_8), HMAC_ALGO));
             byte[] sigBytes = mac.doFinal(b64Body.getBytes(StandardCharsets.UTF_8));
             String sig = Base64.getUrlEncoder().withoutPadding().encodeToString(sigBytes);
 
@@ -54,7 +52,7 @@ public class SignedPayload {
             String sig = parts[1];
 
             Mac mac = Mac.getInstance(HMAC_ALGO);
-            mac.init(new SecretKeySpec(secret, HMAC_ALGO));
+            mac.init(new SecretKeySpec(pkceProps.signSecret().getBytes(StandardCharsets.UTF_8), HMAC_ALGO));
             byte[] expected = mac.doFinal(b64Body.getBytes(StandardCharsets.UTF_8));
             String expectedB64 = Base64.getUrlEncoder().withoutPadding().encodeToString(expected);
 
@@ -74,7 +72,6 @@ public class SignedPayload {
             }
 
             String json = body.substring(dotIndex + 1);
-
             return objectMapper.readValue(json, new TypeReference<Map<String, Object>>() {});
         } catch (Exception e) {
             throw new SecurityException("Invalid signed payload", e);
@@ -83,15 +80,13 @@ public class SignedPayload {
 
     private static boolean constantTimeEquals(String a, String b) {
         if (a == null || b == null)
-            return false;
+                return false;
         if (a.length() != b.length())
-            return false;
+                return false;
         int r = 0;
-
         for (int i = 0; i < a.length(); i++) {
             r |= a.charAt(i) ^ b.charAt(i);
         }
-
         return r == 0;
     }
 }
