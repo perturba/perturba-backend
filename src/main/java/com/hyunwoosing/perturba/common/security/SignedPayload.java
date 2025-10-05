@@ -4,6 +4,7 @@ package com.hyunwoosing.perturba.common.security;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hyunwoosing.perturba.common.config.props.PkceProps;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -13,6 +14,7 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.Map;
 
+@Component
 public class SignedPayload {
 
     private static final String HMAC_ALGO = "HmacSHA256";
