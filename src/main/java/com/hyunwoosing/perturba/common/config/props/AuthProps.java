@@ -6,7 +6,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "perturba.auth")
 public record AuthProps(Google google, Jwt jwt, Refresh refresh) {
 
-    public record Google(String clientId, String clientSecret, String redirectUri) {
+    public record Google(String clientId,
+                         String clientSecret,
+                         String redirectUri,
+                         String authBaseUri,
+                         String tokenUri  ) {
 
     }
 
