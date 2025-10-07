@@ -1,11 +1,11 @@
 package com.hyunwoosing.perturba.common.util;
 
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public final class CookieUtil {
     //쿠기 추가, 만료 편하게 하기 위한 util 클래스 ..
-
-    private CookieUtil() {}
 
     public static void add(HttpServletResponse res,
                            String name,

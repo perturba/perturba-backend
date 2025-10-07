@@ -1,14 +1,16 @@
 package com.hyunwoosing.perturba.common.util;
 
+import lombok.experimental.UtilityClass;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
 
+@UtilityClass
 public class PkceUtil {
     private static final int VERIFIER_BYTES = 32;
 
-    private PkceUtil() {} //기본생성자 막기
 
     public static String randomCodeVerifier() {
         byte[] bytes = new byte[VERIFIER_BYTES];
