@@ -4,8 +4,9 @@ import com.hyunwoosing.perturba.domain.auth.client.google.GoogleOAuthClient;
 import com.hyunwoosing.perturba.domain.auth.client.google.dto.GoogleTokenResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class AuthService {
 
