@@ -22,11 +22,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest req,
-                                    @NonNull HttpServletResponse res,
-                                    @NonNull FilterChain chain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest req, @NonNull HttpServletResponse res, @NonNull FilterChain chain) throws ServletException, IOException {
 
         String header = req.getHeader("Authorization");
+
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
             try {
@@ -35,10 +34,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(auth);
                 req.setAttribute("userId", Long.valueOf(claims.getSubject()));
             } catch (SecurityException ignored) {
-                // 무효 토큰은 인증 미설정 -> 보호 리소스 접근 시 401
+                //무효토큰 다음으로 위임
             }
         }
         chain.doFilter(req, res);
-
     }
 }

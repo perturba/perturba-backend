@@ -15,19 +15,17 @@ import java.util.Date;
 @Component
 @RequiredArgsConstructor
 public class JwtProvider {
+
     private final AuthProps authProps;
 
     public String createAccess(Long userId, String email) {
         SecretKey key = Keys.hmacShaKeyFor(authProps.jwt().hmacSecret().getBytes(StandardCharsets.UTF_8));
-        String issuer = authProps.jwt().issuer();
-        long ttlSec = authProps.jwt().accessTtlSec();
-
         Instant now = Instant.now();
         return Jwts.builder()
                 .subject(String.valueOf(userId))
-                .issuer(issuer)
+                .issuer(authProps.jwt().issuer())
                 .issuedAt(Date.from(now))
-                .expiration(Date.from(now.plusSeconds(ttlSec)))
+                .expiration(Date.from(now.plusSeconds(authProps.jwt().accessTtlSec())))
                 .claim("email", email)
                 .signWith(key, Jwts.SIG.HS256)
                 .compact();
@@ -35,14 +33,12 @@ public class JwtProvider {
 
     public Claims verify(String token) {
         SecretKey key = Keys.hmacShaKeyFor(authProps.jwt().hmacSecret().getBytes(StandardCharsets.UTF_8));
-        String issuer = authProps.jwt().issuer();
-
         Claims claims = Jwts.parser()
                 .verifyWith(key)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
-        if (!issuer.equals(claims.getIssuer())) {
+        if (!authProps.jwt().issuer().equals(claims.getIssuer())) {
             throw new SecurityException("bad-issuer");
         }
         return claims;
