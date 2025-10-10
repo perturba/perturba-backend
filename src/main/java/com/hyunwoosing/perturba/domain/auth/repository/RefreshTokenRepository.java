@@ -1,6 +1,6 @@
-package com.hyunwoosing.perturba.domain.user.repository;
+package com.hyunwoosing.perturba.domain.auth.repository;
 
-import com.hyunwoosing.perturba.domain.user.entity.RefreshToken;
+import com.hyunwoosing.perturba.domain.auth.entity.RefreshToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
