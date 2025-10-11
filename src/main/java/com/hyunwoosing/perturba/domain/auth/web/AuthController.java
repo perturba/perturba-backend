@@ -1,4 +1,3 @@
-// src/main/java/com/hyunwoosing/perturba/domain/auth/web/AuthController.java
 package com.hyunwoosing.perturba.domain.auth.web;
 
 import com.hyunwoosing.perturba.common.api.factory.ApiResponseFactory;

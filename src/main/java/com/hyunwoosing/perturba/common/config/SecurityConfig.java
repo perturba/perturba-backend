@@ -28,7 +28,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(m -> m.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(reg -> reg
-                        .requestMatchers(
+                        .requestMatchers( //todo: spring[] 타입으로 분리
                                 "/actuator/health",
                                 "/v1/auth/me",
                                 "/v1/auth/refresh",
