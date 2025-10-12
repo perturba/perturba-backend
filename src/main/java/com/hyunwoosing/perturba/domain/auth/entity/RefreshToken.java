@@ -1,7 +1,8 @@
-package com.hyunwoosing.perturba.domain.user.entity;
+package com.hyunwoosing.perturba.domain.auth.entity;
 
 import com.hyunwoosing.perturba.common.entity.BaseEntity;
 import com.hyunwoosing.perturba.common.util.BytesToHexConverter;
+import com.hyunwoosing.perturba.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 

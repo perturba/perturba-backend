@@ -1,10 +1,9 @@
-package com.hyunwoosing.perturba.common.web.advice;
+package com.hyunwoosing.perturba.common.exception;
 
 import com.hyunwoosing.perturba.common.api.error.CommonErrorCode;
 import com.hyunwoosing.perturba.common.api.error.ErrorCode;
 import com.hyunwoosing.perturba.common.api.factory.ApiResponseFactory;
 import com.hyunwoosing.perturba.common.api.response.ApiResponse;
-import com.hyunwoosing.perturba.common.exception.BusinessException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
