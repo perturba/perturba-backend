@@ -52,10 +52,6 @@ public class TransformJob extends BaseEntity {
     private Asset inputAsset;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "image_type", nullable = false)
-    private ImageType imageType;
-
-    @Enumerated(EnumType.STRING)
     @Column(name = "intensity", nullable = false)
     private Intensity intensity;
 
@@ -152,9 +148,6 @@ public class TransformJob extends BaseEntity {
     // 속성 변경
     public void updateIntensity(Intensity intensity) {
         this.intensity = intensity;
-    }
-    public void updateImageType(ImageType imageType) {
-        this.imageType = imageType;
     }
 
     // 편의 함수
