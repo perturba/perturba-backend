@@ -16,6 +16,10 @@ public class ActorResolver {
     private final UserRepository userRepository;
     private final GuestSessionRepository guestSessionRepository;
 
+    public Long currentUserId(HttpServletRequest request) {
+        return (Long) request.getAttribute("userId");
+    }
+
     public Optional<User> currentUser(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         if (userId == null) {
