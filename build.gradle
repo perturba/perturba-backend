@@ -43,6 +43,10 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.13.0'
 
     testImplementation 'com.h2database:h2'
+
+    implementation platform('software.amazon.awssdk:bom:2.25.66')
+    implementation 'software.amazon.awssdk:s3'
+
 }
 
 tasks.named('test') {
