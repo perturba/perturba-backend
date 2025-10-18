@@ -8,8 +8,8 @@ import com.hyunwoosing.perturba.domain.job.entity.enums.*;
 import com.hyunwoosing.perturba.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.Instant;
+
 
 @Entity
 @Getter
@@ -36,19 +36,19 @@ public class TransformJob extends BaseEntity {
     private RequestMode requestMode;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", foreignKey = @ForeignKey(name = "fk_jobs_user"))
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "guest_id")
+    @JoinColumn(name = "guest_id", foreignKey = @ForeignKey(name = "fk_jobs_guest"))
     private GuestSession guest;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "api_key_id")
+    @JoinColumn(name = "api_key_id", foreignKey = @ForeignKey(name = "fk_jobs_apikey"))
     private ApiKey apiKey;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "input_asset_id", nullable = false)
+    @JoinColumn(name = "input_asset_id", nullable = false, foreignKey = @ForeignKey(name = "fk_jobs_input"))
     private Asset inputAsset;
 
     @Enumerated(EnumType.STRING)
@@ -63,6 +63,7 @@ public class TransformJob extends BaseEntity {
     @Column(name = "fail_reason", length = 500)
     private String failReason;
 
+    // 동기 응답 기록
     @Column(name = "responded_at", columnDefinition = "datetime(3)")
     private Instant respondedAt;
 
@@ -77,16 +78,32 @@ public class TransformJob extends BaseEntity {
     @Builder.Default
     private NotifyVia notifyVia = NotifyVia.NONE;
 
+
     @Column(name = "started_at", columnDefinition = "datetime(3)")
     private Instant startedAt;
 
     @Column(name = "completed_at", columnDefinition = "datetime(3)")
     private Instant completedAt;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "perturbed_asset_id", foreignKey = @ForeignKey(name = "fk_jobs_perturbed_asset"))
+    private Asset perturbedAsset;
 
-    // business logic methods
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "df_output_asset_id", foreignKey = @ForeignKey(name = "fk_jobs_df_output_asset"))
+    private Asset deepfakeOutputAsset;
 
-    // 재대기 처리: 초기화 후 Queued 상태로
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "perturbation_vis_asset_id", foreignKey = @ForeignKey(name = "fk_jobs_perturb_vis_asset"))
+    private Asset perturbationVisAsset;
+
+    //parameter set hash -> 중복방지용
+    @Column(name = "param_key", nullable = false, length = 64)
+    private String paramKey;
+
+    //Business Logic Methods
+
+    //작업 다시 대기상태로
     public void resetToQueued() {
         this.status = JobStatus.QUEUED;
         this.failReason = null;
@@ -94,30 +111,41 @@ public class TransformJob extends BaseEntity {
         this.respondedAt = null;
         this.responseMs = null;
         this.completedAt = null;
+        this.perturbedAsset = null;
+        this.deepfakeOutputAsset = null;
+        this.perturbationVisAsset = null;
     }
 
-    // 처리 시작 기록
-    public void startProcessing(Instant now) {
-        this.status = JobStatus.PROCESSING;
+    //작업 시작
+    public void markStarted(Instant now) {
+        this.status = JobStatus.STARTED;
         if (this.startedAt == null) this.startedAt = now;
     }
 
-    // 응답 기록 (동기)
-    public void recordResponse(Instant now, Integer elapsedMs) {
-        this.respondedAt = now;
-        this.responseMs = elapsedMs;
+    //작업 진행 중으로
+    public void markProgress() {
+        this.status = JobStatus.PROGRESS;
     }
 
-    // 처리 완료 기록
-    public void completeSuccessfully(Instant now) {
+    //작업 완료
+    public void markCompleted(Instant now,
+                              Asset perturbed,
+                              Asset dfOutput,
+                              Asset vis) {
         if (this.startedAt == null) this.startedAt = now;
-        this.status = JobStatus.DONE;
+        this.status = JobStatus.COMPLETED;
         this.completedAt = now;
+        this.perturbedAsset = perturbed;
+        this.deepfakeOutputAsset = dfOutput;
+        this.perturbationVisAsset = vis;
+
         if (this.requestMode == RequestMode.SYNC && this.respondedAt == null) {
             this.respondedAt = now;
         }
     }
-    public void completeWithFailure(String reason, Instant now) {
+
+    //작업 실패
+    public void markFailed(String reason, Instant now) {
         this.status = JobStatus.FAILED;
         this.failReason = (reason == null || reason.isBlank()) ? "UNKNOWN" : reason;
         this.completedAt = now;
@@ -126,47 +154,37 @@ public class TransformJob extends BaseEntity {
         }
     }
 
-    // 알림 방식 설정
+    //알림 방식 (SSE, NONE) 설정
     public void setNotify(NotifyVia via) {
         this.notifyVia = (via == null) ? NotifyVia.NONE : via;
     }
 
-    //API Key 설정 (API 요청인 경우)
+    //API key 설정 (API 사용시)
     public void useApiKey(ApiKey key) {
         this.apiKey = key;
         if (key != null) this.clientChannel = ClientChannel.API;
     }
 
-    // 사용자 연동
-    public void assignUser(User user) {
-        this.user = user;
-    }
-    public void assignGuest(GuestSession guest) {
-        this.guest = guest;
-    }
+    //사용자, 게스트 연동 (혹시 몰라서 넣음)
+    public void assignUser(User user) { this.user = user; }
+    public void assignGuest(GuestSession guest) { this.guest = guest; }
 
-    // 속성 변경
-    public void updateIntensity(Intensity intensity) {
-        this.intensity = intensity;
-    }
+    //강도변경
+    public void updateIntensity(Intensity intensity) { this.intensity = intensity; }
 
-    // 편의 함수
-    public boolean isTerminal() {
-        return this.status == JobStatus.DONE || this.status == JobStatus.FAILED;
-    }
-    public boolean isSSE() {
-        return this.notifyVia == NotifyVia.SSE;
-    }
+    //편의메서드
+    public boolean isTerminal() { return this.status == JobStatus.COMPLETED || this.status == JobStatus.FAILED; }
+    public boolean isSSE() { return this.notifyVia == NotifyVia.SSE; }
 
 
-    // equals, hashCode: id 기반
+
+    //  equals, hashCode: id 기반
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        TransformJob other = (TransformJob) o;
+        if (!(o instanceof TransformJob other)) return false;
         return id != null && id.equals(other.id);
     }
     @Override
-    public int hashCode() {return getClass().hashCode();}
+    public int hashCode() { return getClass().hashCode(); }
 }
