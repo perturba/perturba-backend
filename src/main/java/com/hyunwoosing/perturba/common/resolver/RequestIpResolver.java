@@ -1,4 +1,4 @@
-package com.hyunwoosing.perturba.common.util;
+package com.hyunwoosing.perturba.common.resolver;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.experimental.UtilityClass;
