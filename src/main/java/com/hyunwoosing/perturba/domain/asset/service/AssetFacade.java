@@ -1,6 +1,5 @@
 package com.hyunwoosing.perturba.domain.asset.service;
 
-import com.hyunwoosing.perturba.common.security.ActorResolver;
 import com.hyunwoosing.perturba.common.storage.S3PresignService;
 import com.hyunwoosing.perturba.domain.asset.entity.Asset;
 import com.hyunwoosing.perturba.domain.asset.web.dto.CompleteUploadRequest;
@@ -11,7 +10,6 @@ import com.hyunwoosing.perturba.domain.asset.web.dto.UploadUrlResponse;
 import com.hyunwoosing.perturba.domain.user.entity.User;
 import com.hyunwoosing.perturba.domain.user.repository.UserRepository;
 import com.mongodb.lang.Nullable;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
@@ -20,7 +18,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -58,7 +55,7 @@ public class AssetFacade {
 
         String publicUrl = s3PresignService.publicUrl(req.objectKey());
 
-        Asset asset = assetService.createInputAsset(
+        Asset asset = assetService.createInputAsset( //Todo: parameter Request로 변경
                 publicUrl,
                 req.mimeType(),
                 req.sizeBytes(),
@@ -68,7 +65,7 @@ public class AssetFacade {
                 owner
         );
 
-        return CompleteUploadResponse.builder()
+        return CompleteUploadResponse.builder() //Todo: Mapper 생성 및 변경
                 .assetId(asset.getId())
                 .kind(asset.getKind())
                 .url(asset.getS3Url())

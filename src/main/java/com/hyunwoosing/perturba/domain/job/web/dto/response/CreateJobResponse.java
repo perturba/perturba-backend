@@ -1,4 +1,8 @@
 package com.hyunwoosing.perturba.domain.job.web.dto.response;
 
-public record CreateJobResponse(String publicId, String status) {
+import com.hyunwoosing.perturba.domain.job.entity.enums.JobStatus;
+import lombok.Builder;
+
+@Builder
+public record CreateJobResponse(String publicId, JobStatus status) {
 }

@@ -10,14 +10,14 @@ import com.hyunwoosing.perturba.domain.auth.repository.RefreshTokenRepository;
 import com.hyunwoosing.perturba.domain.user.entity.User;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class RefreshTokenService {
 

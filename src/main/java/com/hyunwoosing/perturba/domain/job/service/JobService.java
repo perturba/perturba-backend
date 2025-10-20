@@ -1,5 +1,6 @@
 package com.hyunwoosing.perturba.domain.job.service;
 
+import com.hyunwoosing.perturba.common.util.ParamKeyUtil;
 import com.hyunwoosing.perturba.domain.asset.entity.Asset;
 import com.hyunwoosing.perturba.domain.asset.repository.AssetRepository;
 import com.hyunwoosing.perturba.domain.guest.entity.GuestSession;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Objects;
+import java.util.Optional;
 
 
 @Service
@@ -39,7 +41,21 @@ public class JobService {
             throw new JobException(JobErrorCode.ASSET_NOT_OWNED_BY_USER, "현재 유저의 소유가 아닌 Asset 입니다.");
         }
 
-        TransformJob job = TransformJob.builder()
+        //중복 확인
+        String paramKey = ParamKeyUtil.of(req.intensity());
+        if (user != null) {
+            Optional<TransformJob> existing = jobRepo.findByUserAndInputAssetAndParamKey(user, input, paramKey);
+            if (existing.isPresent()){
+                return existing.get();
+            }
+        } else if (guestId != null) {
+            Optional<TransformJob> existing = jobRepo.findByGuest_IdAndInputAssetAndParamKey(guestId, input, paramKey);
+            if (existing.isPresent()){
+                return existing.get();
+            }
+        }
+
+        TransformJob job = TransformJob.builder() //Todo: Mapper 생성 및 변경
                 .clientChannel(req.clientChannel())
                 .requestMode(req.requestMode())
                 .user(user)
