@@ -48,6 +48,8 @@ dependencies {
     implementation platform('software.amazon.awssdk:bom:2.25.66')
     implementation 'software.amazon.awssdk:s3'
 
+    implementation "commons-codec:commons-codec:1.17.1"
+    implementation "com.github.f4b6a3:ulid-creator:5.2.3"
 }
 
 tasks.named('test') {

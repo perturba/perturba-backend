@@ -6,12 +6,12 @@ import com.hyunwoosing.perturba.domain.auth.mapper.OAuthProfile;
 import com.hyunwoosing.perturba.domain.auth.mapper.UserOAuthMapper;
 import com.hyunwoosing.perturba.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class AuthService {
 
