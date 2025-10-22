@@ -1,0 +1,22 @@
+package com.hyunwoosing.perturba.domain.asset.mapper;
+
+import com.hyunwoosing.perturba.domain.asset.entity.Asset;
+import com.hyunwoosing.perturba.domain.asset.web.dto.CompleteUploadResponse;
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
+public class AssetMapper {
+
+    public static CompleteUploadResponse toCompleteUploadResponse(Asset asset){
+        CompleteUploadResponse.builder()
+                .assetId(asset.getId())
+                .kind(asset.getKind())
+                .url(asset.getS3Url())
+                .mimeType(asset.getMimeType())
+                .sizeBytes(asset.getSizeBytes())
+                .width(asset.getWidth())
+                .height(asset.getHeight())
+                .sha256Hex(asset.getSha256Hex())
+                .build();
+    }
+}

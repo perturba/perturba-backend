@@ -3,6 +3,8 @@ package com.hyunwoosing.perturba.domain.asset.service;
 import com.hyunwoosing.perturba.domain.asset.entity.Asset;
 import com.hyunwoosing.perturba.domain.asset.entity.enums.AssetKind;
 import com.hyunwoosing.perturba.domain.asset.repository.AssetRepository;
+import com.hyunwoosing.perturba.domain.asset.web.dto.CompleteUploadRequest;
+import com.hyunwoosing.perturba.domain.asset.web.dto.CompleteUploadResponse;
 import com.hyunwoosing.perturba.domain.user.entity.User;
 import com.mongodb.lang.Nullable;
 import jakarta.transaction.Transactional;
@@ -18,16 +20,10 @@ public class AssetService {
     private final AssetRepository assetRepository;
 
     @Transactional
-    public Asset createInputAsset(String s3Url,
-                                  String mimeType,
-                                  Long sizeBytes,
-                                  Integer width,
-                                  Integer height,
-                                  String sha256Hex,
-                                  @Nullable User owner) {
+    public Asset createInputAsset(String publicUrl, CompleteUploadRequest request, User owner) {
 
-        if (sha256Hex != null && !sha256Hex.isBlank()) {
-            Optional<Asset> existing = assetRepository.findBySha256Hex(sha256Hex);
+        if (request.sha256Hex() != null && !request.sha256Hex().isBlank()) {
+            Optional<Asset> existing = assetRepository.findBySha256Hex(request.sha256Hex());
             if (existing.isPresent()) {
                 return existing.get();
             }
@@ -37,12 +33,12 @@ public class AssetService {
                 .job(null)
                 .owner(owner)
                 .kind(AssetKind.INPUT)
-                .s3Url(s3Url)
-                .mimeType(mimeType)
-                .sizeBytes(sizeBytes)
-                .width(width)
-                .height(height)
-                .sha256Hex(sha256Hex)
+                .s3Url(publicUrl)
+                .mimeType(request.mimeType())
+                .sizeBytes(request.sizeBytes())
+                .width(request.width())
+                .height(request.height())
+                .sha256Hex(request.sha256Hex())
                 .build();
 
         return assetRepository.save(asset);

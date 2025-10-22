@@ -25,12 +25,12 @@ public class JobFacade {
     }
 
     public JobStatusResponse getStatus(String publicId) {
-        var job = jobService.getByPublicId(publicId);
+        TransformJob job = jobService.getByPublicId(publicId);
         return JobMapper.toStatusResponse(job);
     }
 
     public JobResultResponse getResult(String publicId) {
-        var job = jobService.getByPublicId(publicId);
+        TransformJob job = jobService.getByPublicId(publicId);
         return JobMapper.toResultResponse(job);
     }
 

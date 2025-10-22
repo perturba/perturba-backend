@@ -2,6 +2,7 @@ package com.hyunwoosing.perturba.domain.asset.service;
 
 import com.hyunwoosing.perturba.common.storage.S3PresignService;
 import com.hyunwoosing.perturba.domain.asset.entity.Asset;
+import com.hyunwoosing.perturba.domain.asset.mapper.AssetMapper;
 import com.hyunwoosing.perturba.domain.asset.web.dto.CompleteUploadRequest;
 
 import com.hyunwoosing.perturba.domain.asset.web.dto.CompleteUploadResponse;
@@ -47,33 +48,16 @@ public class AssetFacade {
                 .build();
     }
 
-    public CompleteUploadResponse completeUpload(CompleteUploadRequest req, @Nullable Long userId) {
+    public CompleteUploadResponse completeUpload(CompleteUploadRequest request, @Nullable Long userId) {
         User owner = null;
         if (userId != null) {
             owner = userRepository.findById(userId).orElse(null);
         }
 
-        String publicUrl = s3PresignService.publicUrl(req.objectKey());
+        String publicUrl = s3PresignService.publicUrl(request.objectKey());
 
-        Asset asset = assetService.createInputAsset( //Todo: parameter Request로 변경
-                publicUrl,
-                req.mimeType(),
-                req.sizeBytes(),
-                req.width(),
-                req.height(),
-                req.sha256Hex(),
-                owner
-        );
+        Asset asset = assetService.createInputAsset(publicUrl, request, owner);
 
-        return CompleteUploadResponse.builder() //Todo: Mapper 생성 및 변경
-                .assetId(asset.getId())
-                .kind(asset.getKind())
-                .url(asset.getS3Url())
-                .mimeType(asset.getMimeType())
-                .sizeBytes(asset.getSizeBytes())
-                .width(asset.getWidth())
-                .height(asset.getHeight())
-                .sha256Hex(asset.getSha256Hex())
-                .build();
+        return AssetMapper.toCompleteUploadResponse(asset);
     }
 }
