@@ -12,9 +12,7 @@ import com.hyunwoosing.perturba.domain.job.error.JobException;
 import com.hyunwoosing.perturba.domain.job.repository.JobRepository;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.CreateJobRequest;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.FeedbackRequest;
-import com.hyunwoosing.perturba.domain.job.web.dto.response.JobResultResponse;
 import com.hyunwoosing.perturba.domain.user.entity.User;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,14 +46,9 @@ public class JobService {
             if (existing.isPresent()){
                 return existing.get();
             }
-        } else if (guestId != null) {
-            Optional<TransformJob> existing = jobRepo.findByGuest_IdAndInputAssetAndParamKey(guestId, input, paramKey);
-            if (existing.isPresent()){
-                return existing.get();
-            }
         }
 
-        TransformJob job = TransformJob.builder() //Todo: Mapper 생성 및 변경
+        TransformJob job = TransformJob.builder()
                 .clientChannel(req.clientChannel())
                 .requestMode(req.requestMode())
                 .user(user)
@@ -78,41 +71,20 @@ public class JobService {
 
     @Transactional(readOnly = true)
     public TransformJob getByPublicId(String publicId) {
-        return jobRepo.findByPublicId(publicId)
-                .orElseThrow(() -> new EntityNotFoundException("job not found"));
+        return jobRepo.findByPublicId(publicId).orElseThrow(() ->
+                new JobException(JobErrorCode.JOB_NOT_FOUND, "해당 작업을 찾을 수 없습니다."));
     }
 
-    @Transactional(readOnly = true)
-    public JobResultResponse buildResult(String publicId) {
-        TransformJob j = getByPublicId(publicId);
-        if (j.getStatus() != JobStatus.COMPLETED) {
-            // 미완료면 404 등으로 매핑
-            throw new EntityNotFoundException("result not ready");
-        }
-        return new JobResultResponse(
-                sec(j.getInputAsset()),
-                sec(j.getPerturbedAsset()),
-                sec(j.getDeepfakeOutputAsset()),
-                sec(j.getPerturbationVisAsset())
-        );
-    }
-
-    private JobResultResponse.Section sec(Asset asset) {
-        if (asset == null) return null;
-        return new JobResultResponse.Section(
-                asset.getId(),
-                asset.getS3Url(),
-                asset.getMimeType(),
-                asset.getWidth(),
-                asset.getHeight()
-        );
-    }
 
     @Transactional
     public void saveFeedback(String publicId, FeedbackRequest req, User user, Long guestId) {
-        //TODO: Feedback 엔티티 설계 후 저장
         getByPublicId(publicId);
+        //TODO: Feedback 엔티티 설계 후 저장
+
     }
+
+
+
 
     @Transactional
     public void markStarted(String publicId) {
@@ -120,21 +92,18 @@ public class JobService {
         j.markStarted(Instant.now());
         jobRepo.save(j);
     }
-
     @Transactional
     public void markProgress(String publicId) {
         TransformJob j = getByPublicId(publicId);
         j.markProgress();
         jobRepo.save(j);
     }
-
     @Transactional
     public void markCompleted(String publicId, Asset perturbed, Asset df, Asset vis) {
         TransformJob j = getByPublicId(publicId);
         j.markCompleted(Instant.now(), perturbed, df, vis);
         jobRepo.save(j);
     }
-
     @Transactional
     public void markFailed(String publicId, String reason) {
         TransformJob j = getByPublicId(publicId);

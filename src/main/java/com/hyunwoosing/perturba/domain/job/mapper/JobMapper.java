@@ -53,4 +53,6 @@ public class JobMapper {
                 .height(asset.getHeight())
                 .build();
     }
+
+
 }

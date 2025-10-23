@@ -23,7 +23,7 @@ public class AssetService {
     public Asset createInputAsset(String publicUrl, CompleteUploadRequest request, User owner) {
 
         if (request.sha256Hex() != null && !request.sha256Hex().isBlank()) {
-            Optional<Asset> existing = assetRepository.findBySha256Hex(request.sha256Hex());
+            Optional<Asset> existing = assetRepository.findBySha256Hex(request.sha256Hex(), owner);
             if (existing.isPresent()) {
                 return existing.get();
             }

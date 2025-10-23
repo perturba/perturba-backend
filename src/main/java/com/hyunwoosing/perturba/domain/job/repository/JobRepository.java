@@ -10,5 +10,4 @@ import java.util.Optional;
 public interface JobRepository extends JpaRepository<TransformJob, Long> {
     Optional<TransformJob> findByPublicId(String publicId);
     Optional<TransformJob> findByUserAndInputAssetAndParamKey(User user, Asset input, String paramKey);
-    Optional<TransformJob> findByGuest_IdAndInputAssetAndParamKey(Long guestId, Asset input, String paramKey);
 }
