@@ -29,11 +29,12 @@ public class JobController {
 
     @PostMapping
     public ApiResponse<CreateJobResponse> create(@Valid @RequestBody CreateJobRequest req,
+                                                 @RequestHeader(value = "idempotency-key", required = false) String idemKey,
                                                  HttpServletRequest httpRequest) {
         User user = actorResolver.currentUser(httpRequest).orElse(null);
         Long guestId = actorResolver.currentGuest(httpRequest).map(GuestSession::getId).orElse(null);
 
-        return ApiResponseFactory.success(jobFacade.create(req, user, guestId));
+        return ApiResponseFactory.success(jobFacade.create(req, user, guestId, idemKey));
     }
 
     @GetMapping("/{publicId}/status")

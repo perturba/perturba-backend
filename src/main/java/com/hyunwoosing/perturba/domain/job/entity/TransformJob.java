@@ -70,9 +70,8 @@ public class TransformJob extends BaseEntity {
     @Column(name = "response_ms")
     private Integer responseMs;
 
-    //멱등키는 일단 보류
-//    @Column(name = "idempotency_key", length = 64)
-//    private String idempotencyKey;
+    @Column(name = "idempotency_key", length = 64)
+    private String idempotencyKey;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "notify_via", nullable = false)

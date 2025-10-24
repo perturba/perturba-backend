@@ -9,6 +9,7 @@ import com.hyunwoosing.perturba.domain.job.web.dto.response.FeedbackResponse;
 import com.hyunwoosing.perturba.domain.job.web.dto.response.JobResultResponse;
 import com.hyunwoosing.perturba.domain.job.web.dto.response.JobStatusResponse;
 import com.hyunwoosing.perturba.domain.user.entity.User;
+import com.mongodb.lang.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +20,8 @@ public class JobFacade {
     private final JobService jobService;
 
 
-    public CreateJobResponse create(CreateJobRequest req, User user, Long guestId) {
-        TransformJob job = jobService.create(req, user, guestId);
+    public CreateJobResponse create(CreateJobRequest req, User user, Long guestId, @Nullable String idemKey) {
+        TransformJob job = jobService.create(req, user, guestId, idemKey);
         return JobMapper.toCreateJobResponse(job);
     }
 
