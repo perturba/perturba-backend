@@ -8,7 +8,9 @@ import lombok.experimental.UtilityClass;
 public class AssetMapper {
 
     public static CompleteUploadResponse toCompleteUploadResponse(Asset asset){
-        CompleteUploadResponse.builder()
+        if (asset == null)
+            return CompleteUploadResponse.builder().build();
+        return CompleteUploadResponse.builder()
                 .assetId(asset.getId())
                 .kind(asset.getKind())
                 .url(asset.getS3Url())

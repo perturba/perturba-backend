@@ -4,10 +4,8 @@ import com.hyunwoosing.perturba.domain.asset.entity.Asset;
 import com.hyunwoosing.perturba.domain.asset.entity.enums.AssetKind;
 import com.hyunwoosing.perturba.domain.asset.repository.AssetRepository;
 import com.hyunwoosing.perturba.domain.asset.web.dto.CompleteUploadRequest;
-import com.hyunwoosing.perturba.domain.asset.web.dto.CompleteUploadResponse;
 import com.hyunwoosing.perturba.domain.user.entity.User;
-import com.mongodb.lang.Nullable;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +21,7 @@ public class AssetService {
     public Asset createInputAsset(String publicUrl, CompleteUploadRequest request, User owner) {
 
         if (request.sha256Hex() != null && !request.sha256Hex().isBlank()) {
-            Optional<Asset> existing = assetRepository.findBySha256Hex(request.sha256Hex(), owner);
+            Optional<Asset> existing = assetRepository.findBySha256HexAndOwner(request.sha256Hex(), owner);
             if (existing.isPresent()) {
                 return existing.get();
             }

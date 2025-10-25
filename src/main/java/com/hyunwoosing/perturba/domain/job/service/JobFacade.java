@@ -9,7 +9,7 @@ import com.hyunwoosing.perturba.domain.job.web.dto.response.FeedbackResponse;
 import com.hyunwoosing.perturba.domain.job.web.dto.response.JobResultResponse;
 import com.hyunwoosing.perturba.domain.job.web.dto.response.JobStatusResponse;
 import com.hyunwoosing.perturba.domain.user.entity.User;
-import com.mongodb.lang.Nullable;
+import org.springframework.lang.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

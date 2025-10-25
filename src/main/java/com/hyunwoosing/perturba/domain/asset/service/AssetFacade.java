@@ -10,7 +10,7 @@ import com.hyunwoosing.perturba.domain.asset.web.dto.UploadUrlRequest;
 import com.hyunwoosing.perturba.domain.asset.web.dto.UploadUrlResponse;
 import com.hyunwoosing.perturba.domain.user.entity.User;
 import com.hyunwoosing.perturba.domain.user.repository.UserRepository;
-import com.mongodb.lang.Nullable;
+import org.springframework.lang.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;

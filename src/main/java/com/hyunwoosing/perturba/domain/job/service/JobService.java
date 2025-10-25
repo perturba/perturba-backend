@@ -13,7 +13,7 @@ import com.hyunwoosing.perturba.domain.job.repository.JobRepository;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.CreateJobRequest;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.FeedbackRequest;
 import com.hyunwoosing.perturba.domain.user.entity.User;
-import com.mongodb.lang.Nullable;
+import org.springframework.lang.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -66,6 +66,8 @@ public class JobService {
                 .intensity(req.intensity())
                 .notifyVia(req.notifyVia())
                 .status(JobStatus.QUEUED)
+                .paramKey(paramKey)
+                .idempotencyKey((idemKey != null && !idemKey.isBlank()) ? idemKey : null)
                 .build();
 
         //TODO: 외부 AI 서버 호출(Flask/Django)

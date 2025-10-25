@@ -9,6 +9,7 @@ import com.hyunwoosing.perturba.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
+import com.hyunwoosing.perturba.common.util.IdUtil;
 
 
 @Entity
@@ -178,7 +179,7 @@ public class TransformJob extends BaseEntity {
 
 
 
-    //  equals, hashCode: id 기반
+    //equals, hashCode: id 기반
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -187,4 +188,11 @@ public class TransformJob extends BaseEntity {
     }
     @Override
     public int hashCode() { return getClass().hashCode(); }
+
+    @PrePersist
+    void prePersist() {
+        if (this.publicId == null || this.publicId.isBlank()) {
+            this.publicId = IdUtil.ulid();
+        }
+    }
 }
