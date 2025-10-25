@@ -1,6 +1,7 @@
 package com.hyunwoosing.perturba.domain.job.entity;
 
 import com.hyunwoosing.perturba.common.entity.BaseEntity;
+import com.hyunwoosing.perturba.common.util.UlidUtil;
 import com.hyunwoosing.perturba.domain.apikey.entity.ApiKey;
 import com.hyunwoosing.perturba.domain.asset.entity.Asset;
 import com.hyunwoosing.perturba.domain.guest.entity.GuestSession;
@@ -9,7 +10,6 @@ import com.hyunwoosing.perturba.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.Instant;
-import com.hyunwoosing.perturba.common.util.IdUtil;
 
 
 @Entity
@@ -192,7 +192,7 @@ public class TransformJob extends BaseEntity {
     @PrePersist
     void prePersist() {
         if (this.publicId == null || this.publicId.isBlank()) {
-            this.publicId = IdUtil.ulid();
+            this.publicId = UlidUtil.newUlid();
         }
     }
 }
