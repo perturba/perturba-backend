@@ -98,10 +98,8 @@ public class JobService {
     @Transactional
     public void saveFeedback(String publicId, FeedbackRequest req, User user, Long guestId) {
         getByPublicId(publicId);
-        //TODO: Feedback 엔티티 설계 후 저장
-
+        //todo: feedback 저장
     }
-
 
     //mark.. 사용안할수도?
     @Transactional
