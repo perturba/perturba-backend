@@ -2,7 +2,7 @@ package com.hyunwoosing.perturba.domain.job.web;
 
 import com.hyunwoosing.perturba.common.api.factory.ApiResponseFactory;
 import com.hyunwoosing.perturba.common.api.response.ApiResponse;
-import com.hyunwoosing.perturba.common.security.ActorResolver;
+import com.hyunwoosing.perturba.common.security.AuthPrincipal;
 import com.hyunwoosing.perturba.domain.guest.entity.GuestSession;
 import com.hyunwoosing.perturba.domain.job.service.JobFacade;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.CreateJobRequest;
@@ -17,6 +17,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -25,16 +26,16 @@ import org.springframework.web.bind.annotation.*;
 public class JobController {
 
     private final JobFacade jobFacade;
-    private final ActorResolver actorResolver;
+
 
     @PostMapping
     public ApiResponse<CreateJobResponse> create(@Valid @RequestBody CreateJobRequest req,
-                                                 @RequestHeader(value = "idempotency-key", required = false) String idemKey,
-                                                 HttpServletRequest httpRequest) {
-        User user = actorResolver.currentUser(httpRequest).orElse(null);
-        Long guestId = actorResolver.currentGuest(httpRequest).map(GuestSession::getId).orElse(null);
+                                                 @AuthenticationPrincipal AuthPrincipal authPrincipal,
+                                                 @RequestHeader(value = "idempotency-key", required = false) String idemKey) {
+        Long userId  = authPrincipal != null ? authPrincipal.userId()  : null;
+        Long guestId = authPrincipal != null ? authPrincipal.guestId() : null;
 
-        return ApiResponseFactory.success(jobFacade.create(req, user, guestId, idemKey));
+        return ApiResponseFactory.success(jobFacade.create(req, userId, guestId, idemKey));
     }
 
     @GetMapping("/{publicId}/status")
@@ -50,10 +51,11 @@ public class JobController {
     @PostMapping("/{publicId}/feedback")
     public ResponseEntity<ApiResponse<FeedbackResponse>> feedback(@PathVariable String publicId,
                                                                   @Valid @RequestBody FeedbackRequest req,
-                                                                  HttpServletRequest http) {
-        User user = actorResolver.currentUser(http).orElse(null);
-        Long guestId = actorResolver.currentGuest(http).map(GuestSession::getId).orElse(null);
-        FeedbackResponse res = jobFacade.saveFeedback(publicId, req, user, guestId);
+                                                                  @AuthenticationPrincipal AuthPrincipal authPrincipal) {
+        Long userId  = authPrincipal != null ? authPrincipal.userId()  : null;
+        Long guestId = authPrincipal != null ? authPrincipal.guestId() : null;
+
+        FeedbackResponse res = jobFacade.saveFeedback(publicId, req, userId, guestId);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseFactory.success(res));
     }
 }

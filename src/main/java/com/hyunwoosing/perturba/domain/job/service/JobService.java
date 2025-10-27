@@ -13,6 +13,9 @@ import com.hyunwoosing.perturba.domain.job.repository.JobRepository;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.CreateJobRequest;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.FeedbackRequest;
 import com.hyunwoosing.perturba.domain.user.entity.User;
+import com.hyunwoosing.perturba.domain.user.error.UserErrorCode;
+import com.hyunwoosing.perturba.domain.user.error.UserException;
+import com.hyunwoosing.perturba.domain.user.repository.UserRepository;
 import org.springframework.lang.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -28,6 +31,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class JobService {
 
+    private final UserRepository userRepository;
     private final JobRepository jobRepo;
     private final AssetRepository assetRepo;
     private final GuestSessionRepository guestRepo;
@@ -35,7 +39,11 @@ public class JobService {
     //todo: 멱등키는 같은데 파라미터가 다른경우 에러처리 필요할듯.. 어디에서 에러를 터트릴지는 고민
 
     @Transactional
-    public TransformJob create(CreateJobRequest req, User user, Long guestId, @Nullable String idemKey) {
+    public TransformJob create(CreateJobRequest req, Long userId, Long guestId, @Nullable String idemKey) {
+
+        User user = resolveUser(userId);
+        GuestSession guest = resolveGuest(guestId);
+
         Asset input = assetRepo.findById(req.inputAssetId()).orElseThrow(() ->
                 new JobException(JobErrorCode.INPUT_ASSET_NOT_FOUND, "입력된 Asset 을 찾을 수 없습니다."));
 
@@ -61,7 +69,7 @@ public class JobService {
                 .clientChannel(req.clientChannel())
                 .requestMode(req.requestMode())
                 .user(user)
-                .guest(resolveGuest(guestId))
+                .guest(guest)
                 .inputAsset(input)
                 .intensity(req.intensity())
                 .notifyVia(req.notifyVia())
@@ -96,8 +104,9 @@ public class JobService {
     }
 
     @Transactional
-    public void saveFeedback(String publicId, FeedbackRequest req, User user, Long guestId) {
+    public void saveFeedback(String publicId, FeedbackRequest req, Long userId, Long guestId) {
         getByPublicId(publicId);
+        resolveUser(userId);
         //todo: feedback 저장
     }
 
@@ -135,6 +144,10 @@ public class JobService {
     private GuestSession resolveGuest(Long guestId) {
         if (guestId == null) return null;
         return guestRepo.findById(guestId).orElse(null);
+    }
+    private User resolveUser(Long userId) {
+        if (userId == null) return null;
+        return userRepository.findById(userId).orElse(null);
     }
 
     private Optional<TransformJob> findExistingJob(User user, Asset input, String paramKey) {

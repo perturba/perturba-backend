@@ -1,6 +1,6 @@
 package com.hyunwoosing.perturba.domain.auth.service;
 
-import com.hyunwoosing.perturba.common.security.jwt.JwtProvider;
+import com.hyunwoosing.perturba.common.security.JwtProvider;
 import com.hyunwoosing.perturba.domain.user.entity.User;
 import com.hyunwoosing.perturba.domain.auth.mapper.OAuthProfile;
 import com.hyunwoosing.perturba.domain.auth.mapper.UserOAuthMapper;
