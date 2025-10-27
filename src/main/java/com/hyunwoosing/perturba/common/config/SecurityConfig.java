@@ -2,8 +2,8 @@ package com.hyunwoosing.perturba.common.config;
 
 
 import com.hyunwoosing.perturba.common.config.props.AuthProps;
-import com.hyunwoosing.perturba.common.security.GuestAuthFilter;
-import com.hyunwoosing.perturba.common.security.jwt.JwtAuthFilter;
+import com.hyunwoosing.perturba.common.security.filter.GuestAuthFilter;
+import com.hyunwoosing.perturba.common.security.filter.JwtAuthFilter;
 import com.hyunwoosing.perturba.domain.auth.web.oauth.CustomOAuth2UserService;
 import com.hyunwoosing.perturba.domain.auth.web.oauth.OAuth2AuthFailureHandler;
 import com.hyunwoosing.perturba.domain.auth.web.oauth.OAuth2AuthSuccessHandler;

@@ -1,5 +1,6 @@
-package com.hyunwoosing.perturba.common.security.jwt;
+package com.hyunwoosing.perturba.common.security.filter;
 
+import com.hyunwoosing.perturba.common.security.JwtProvider;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

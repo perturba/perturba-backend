@@ -2,6 +2,7 @@ package com.hyunwoosing.perturba.common.security.jwt;
 
 
 import com.hyunwoosing.perturba.common.config.props.AuthProps;
+import com.hyunwoosing.perturba.common.security.JwtProvider;
 import com.hyunwoosing.perturba.testsupport.TestAuthPropsFactory;
 import io.jsonwebtoken.Claims;
 import org.junit.jupiter.api.Test;

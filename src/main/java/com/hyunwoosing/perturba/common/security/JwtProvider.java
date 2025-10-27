@@ -1,4 +1,4 @@
-package com.hyunwoosing.perturba.common.security.jwt;
+package com.hyunwoosing.perturba.common.security;
 
 import com.hyunwoosing.perturba.common.config.props.AuthProps;
 import io.jsonwebtoken.Claims;

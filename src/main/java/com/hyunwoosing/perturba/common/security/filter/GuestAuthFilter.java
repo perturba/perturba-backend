@@ -1,6 +1,7 @@
-package com.hyunwoosing.perturba.common.security;
+package com.hyunwoosing.perturba.common.security.filter;
 
 import com.hyunwoosing.perturba.common.config.props.AuthProps;
+import com.hyunwoosing.perturba.common.security.AuthPrincipal;
 import com.hyunwoosing.perturba.domain.guest.entity.GuestSession;
 import com.hyunwoosing.perturba.domain.guest.repository.GuestSessionRepository;
 import jakarta.servlet.FilterChain;

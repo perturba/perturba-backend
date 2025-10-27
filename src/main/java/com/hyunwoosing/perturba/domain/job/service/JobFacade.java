@@ -20,8 +20,8 @@ public class JobFacade {
     private final JobService jobService;
 
 
-    public CreateJobResponse create(CreateJobRequest req, User user, Long guestId, @Nullable String idemKey) {
-        TransformJob job = jobService.create(req, user, guestId, idemKey);
+    public CreateJobResponse create(CreateJobRequest req, Long userId, Long guestId, @Nullable String idemKey) {
+        TransformJob job = jobService.create(req, userId, guestId, idemKey);
         return JobMapper.toCreateJobResponse(job);
     }
 
@@ -35,8 +35,8 @@ public class JobFacade {
         return JobMapper.toResultResponse(job);
     }
 
-    public FeedbackResponse saveFeedback(String publicId, FeedbackRequest req, User user, Long guestId) {
-        jobService.saveFeedback(publicId, req, user, guestId);
+    public FeedbackResponse saveFeedback(String publicId, FeedbackRequest req, Long userId, Long guestId) {
+        jobService.saveFeedback(publicId, req, userId, guestId);
         return FeedbackResponse.builder().accepted(true).build();
     }
 }
