@@ -33,9 +33,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(claims.getSubject(), null, List.of());
                 SecurityContextHolder.getContext().setAuthentication(auth);
                 req.setAttribute("userId", Long.valueOf(claims.getSubject()));
-            } catch (SecurityException ignored) {
-                //무효토큰 다음으로 위임
-            }
+            } catch (SecurityException ignored) {}
         }
         chain.doFilter(req, res);
     }
