@@ -1,10 +1,14 @@
 package com.hyunwoosing.perturba.domain.job.mapper;
 
 import com.hyunwoosing.perturba.domain.asset.entity.Asset;
+import com.hyunwoosing.perturba.domain.guest.entity.GuestSession;
+import com.hyunwoosing.perturba.domain.job.entity.JobFeedback;
 import com.hyunwoosing.perturba.domain.job.entity.TransformJob;
+import com.hyunwoosing.perturba.domain.job.web.dto.request.FeedbackRequest;
 import com.hyunwoosing.perturba.domain.job.web.dto.response.CreateJobResponse;
 import com.hyunwoosing.perturba.domain.job.web.dto.response.JobResultResponse;
 import com.hyunwoosing.perturba.domain.job.web.dto.response.JobStatusResponse;
+import com.hyunwoosing.perturba.domain.user.entity.User;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -54,5 +58,16 @@ public class JobMapper {
                 .build();
     }
 
+    public static JobFeedback toJobFeedback(TransformJob job, FeedbackRequest request, User user, GuestSession guest) {
+        if (job == null || request == null)
+            return null;
+        return JobFeedback.builder()
+                .job(job)
+                .user(user)
+                .guest(guest)
+                .distortionEval(request.distortionEval())
+                .strengthEval(request.strengthEval())
+                .build();
+    }
 
 }

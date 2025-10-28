@@ -14,7 +14,7 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Table(name = "job_feedbacks")
-public class JobFeedbacks extends BaseEntity {
+public class JobFeedback extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "feedback_id")
@@ -22,7 +22,7 @@ public class JobFeedbacks extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "job_id", nullable = false)
-    private TransformJob transformJob;
+    private TransformJob job;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "user_id")
@@ -45,7 +45,7 @@ public class JobFeedbacks extends BaseEntity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof JobFeedbacks other)) return false;
+        if (!(o instanceof JobFeedback other)) return false;
         return id != null && id.equals(other.id);
     }
     @Override
