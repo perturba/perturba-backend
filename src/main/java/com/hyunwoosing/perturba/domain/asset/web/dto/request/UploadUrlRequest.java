@@ -1,4 +1,4 @@
-package com.hyunwoosing.perturba.domain.asset.web.dto;
+package com.hyunwoosing.perturba.domain.asset.web.dto.request;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

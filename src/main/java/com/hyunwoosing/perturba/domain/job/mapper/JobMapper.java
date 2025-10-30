@@ -1,5 +1,6 @@
 package com.hyunwoosing.perturba.domain.job.mapper;
 
+import com.hyunwoosing.perturba.common.util.TimeUtil;
 import com.hyunwoosing.perturba.domain.asset.entity.Asset;
 import com.hyunwoosing.perturba.domain.guest.entity.GuestSession;
 import com.hyunwoosing.perturba.domain.job.entity.JobFeedback;
@@ -29,8 +30,8 @@ public class JobMapper {
         return JobStatusResponse.builder()
                 .publicId(job.getPublicId())
                 .status(job.getStatus() != null ? job.getStatus() : null)
-                .startedAt(job.getStartedAt())
-                .completedAt(job.getCompletedAt())
+                .startedAt(TimeUtil.toKst(job.getStartedAt()))
+                .completedAt(TimeUtil.toKst(job.getCompletedAt()))
                 .failReason(job.getFailReason())
                 .build();
     }
@@ -43,6 +44,8 @@ public class JobMapper {
                 .perturbed(toSection(job.getPerturbedAsset()))
                 .deepfakeOutput(toSection(job.getDeepfakeOutputAsset()))
                 .perturbationVis(toSection(job.getPerturbationVisAsset()))
+                .createdAt(TimeUtil.toKst(job.getCreatedAt()))
+                .completedAt(TimeUtil.toKst(job.getCompletedAt()))
                 .build();
     }
 

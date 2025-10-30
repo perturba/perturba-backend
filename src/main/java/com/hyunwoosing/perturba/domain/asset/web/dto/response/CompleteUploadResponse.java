@@ -1,4 +1,4 @@
-package com.hyunwoosing.perturba.domain.asset.web.dto;
+package com.hyunwoosing.perturba.domain.asset.web.dto.response;
 
 import com.hyunwoosing.perturba.domain.asset.entity.enums.AssetKind;
 import lombok.Builder;

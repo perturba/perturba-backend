@@ -3,11 +3,11 @@ package com.hyunwoosing.perturba.domain.asset.service;
 import com.hyunwoosing.perturba.common.storage.S3PresignService;
 import com.hyunwoosing.perturba.domain.asset.entity.Asset;
 import com.hyunwoosing.perturba.domain.asset.mapper.AssetMapper;
-import com.hyunwoosing.perturba.domain.asset.web.dto.CompleteUploadRequest;
+import com.hyunwoosing.perturba.domain.asset.web.dto.request.CompleteUploadRequest;
 
-import com.hyunwoosing.perturba.domain.asset.web.dto.CompleteUploadResponse;
-import com.hyunwoosing.perturba.domain.asset.web.dto.UploadUrlRequest;
-import com.hyunwoosing.perturba.domain.asset.web.dto.UploadUrlResponse;
+import com.hyunwoosing.perturba.domain.asset.web.dto.response.CompleteUploadResponse;
+import com.hyunwoosing.perturba.domain.asset.web.dto.request.UploadUrlRequest;
+import com.hyunwoosing.perturba.domain.asset.web.dto.response.UploadUrlResponse;
 import com.hyunwoosing.perturba.domain.user.entity.User;
 import com.hyunwoosing.perturba.domain.user.repository.UserRepository;
 import org.springframework.lang.Nullable;

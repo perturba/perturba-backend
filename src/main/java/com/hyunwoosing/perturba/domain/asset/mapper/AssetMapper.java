@@ -1,7 +1,7 @@
 package com.hyunwoosing.perturba.domain.asset.mapper;
 
 import com.hyunwoosing.perturba.domain.asset.entity.Asset;
-import com.hyunwoosing.perturba.domain.asset.web.dto.CompleteUploadResponse;
+import com.hyunwoosing.perturba.domain.asset.web.dto.response.CompleteUploadResponse;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass

@@ -131,14 +131,14 @@ public class TransformJob extends BaseEntity {
     //작업 완료
     public void markCompleted(Instant now,
                               Asset perturbed,
-                              Asset dfOutput,
-                              Asset vis) {
+                              Asset deepfakeOutput,
+                              Asset visiblePerturbation) {
         if (this.startedAt == null) this.startedAt = now;
         this.status = JobStatus.COMPLETED;
         this.completedAt = now;
         this.perturbedAsset = perturbed;
-        this.deepfakeOutputAsset = dfOutput;
-        this.perturbationVisAsset = vis;
+        this.deepfakeOutputAsset = deepfakeOutput;
+        this.perturbationVisAsset = visiblePerturbation;
 
         if (this.requestMode == RequestMode.SYNC && this.respondedAt == null) {
             this.respondedAt = now;

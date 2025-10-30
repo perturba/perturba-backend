@@ -3,7 +3,7 @@ package com.hyunwoosing.perturba.domain.asset.service;
 import com.hyunwoosing.perturba.domain.asset.entity.Asset;
 import com.hyunwoosing.perturba.domain.asset.entity.enums.AssetKind;
 import com.hyunwoosing.perturba.domain.asset.repository.AssetRepository;
-import com.hyunwoosing.perturba.domain.asset.web.dto.CompleteUploadRequest;
+import com.hyunwoosing.perturba.domain.asset.web.dto.request.CompleteUploadRequest;
 import com.hyunwoosing.perturba.domain.user.entity.User;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;

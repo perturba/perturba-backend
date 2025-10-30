@@ -10,13 +10,17 @@ import com.hyunwoosing.perturba.domain.job.entity.TransformJob;
 import com.hyunwoosing.perturba.domain.job.entity.enums.JobStatus;
 import com.hyunwoosing.perturba.domain.job.error.JobErrorCode;
 import com.hyunwoosing.perturba.domain.job.error.JobException;
+import com.hyunwoosing.perturba.domain.job.mapper.JobListMapper;
 import com.hyunwoosing.perturba.domain.job.mapper.JobMapper;
 import com.hyunwoosing.perturba.domain.job.repository.JobFeedbackRepository;
 import com.hyunwoosing.perturba.domain.job.repository.JobRepository;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.CreateJobRequest;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.FeedbackRequest;
+import com.hyunwoosing.perturba.domain.job.web.dto.response.JobListResponse;
 import com.hyunwoosing.perturba.domain.user.entity.User;
 import com.hyunwoosing.perturba.domain.user.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.lang.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -115,6 +119,20 @@ public class JobService {
         jobFeedbackRepository.save(jobFeedback);
     }
 
+    @Transactional(readOnly = true)
+    public Page<TransformJob> listMyJobs(Long userId, Long guestId, int page, int size) {
+        if (userId == null && guestId == null) {
+            throw new IllegalArgumentException("no actor (user or guest)");
+        }
+        int pageSize = Math.min(Math.max(size, 1), 100);
+        var pageable = PageRequest.of(page, pageSize);
+
+        return (userId != null)
+                ? jobRepository.findByUser_IdOrderByCreatedAtDesc(userId, pageable)
+                : jobRepository.findByGuest_IdOrderByCreatedAtDesc(guestId, pageable);
+    }
+
+
     //mark.. 사용안할수도?
     @Transactional
     public void markStarted(String publicId) {
@@ -129,18 +147,19 @@ public class JobService {
         jobRepository.save(j);
     }
     @Transactional
-    public void markCompleted(String publicId, Asset perturbed, Asset df, Asset vis) {
+    public void markCompleted(String publicId, Asset perturbed, Asset deepfakeOutput, Asset visiblePerturbation) {
         TransformJob j = getByPublicId(publicId);
-        j.markCompleted(Instant.now(), perturbed, df, vis);
+        j.markCompleted(Instant.now(), perturbed, deepfakeOutput, visiblePerturbation);
         jobRepository.save(j);
     }
     @Transactional
-
     public void markFailed(String publicId, String reason) {
         TransformJob j = getByPublicId(publicId);
         j.markFailed(reason, Instant.now());
         jobRepository.save(j);
     }
+
+
 
 
 

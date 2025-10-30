@@ -7,10 +7,7 @@ import com.hyunwoosing.perturba.domain.guest.entity.GuestSession;
 import com.hyunwoosing.perturba.domain.job.service.JobFacade;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.CreateJobRequest;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.FeedbackRequest;
-import com.hyunwoosing.perturba.domain.job.web.dto.response.CreateJobResponse;
-import com.hyunwoosing.perturba.domain.job.web.dto.response.FeedbackResponse;
-import com.hyunwoosing.perturba.domain.job.web.dto.response.JobResultResponse;
-import com.hyunwoosing.perturba.domain.job.web.dto.response.JobStatusResponse;
+import com.hyunwoosing.perturba.domain.job.web.dto.response.*;
 import com.hyunwoosing.perturba.domain.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -27,10 +24,18 @@ public class JobController {
 
     private final JobFacade jobFacade;
 
+    @GetMapping
+    public JobListResponse list(@AuthenticationPrincipal AuthPrincipal auth,
+                                @RequestParam(defaultValue = "0") int page,
+                                @RequestParam(defaultValue = "20") int size) {
+        Long userId  = auth != null ? auth.userId()  : null;
+        Long guestId = auth != null ? auth.guestId() : null;
+        return jobFacade.listMyJobs(userId, guestId, page, size);
+    }
 
     @PostMapping
-    public ApiResponse<CreateJobResponse> create(@Valid @RequestBody CreateJobRequest req,
-                                                 @AuthenticationPrincipal AuthPrincipal authPrincipal,
+    public ApiResponse<CreateJobResponse> create(@AuthenticationPrincipal AuthPrincipal authPrincipal,
+                                                 @Valid @RequestBody CreateJobRequest req,
                                                  @RequestHeader(value = "idempotency-key", required = false) String idemKey) {
         Long userId  = authPrincipal != null ? authPrincipal.userId()  : null;
         Long guestId = authPrincipal != null ? authPrincipal.guestId() : null;
@@ -49,9 +54,9 @@ public class JobController {
     }
 
     @PostMapping("/{publicId}/feedback")
-    public ResponseEntity<ApiResponse<FeedbackResponse>> feedback(@PathVariable String publicId,
-                                                                  @Valid @RequestBody FeedbackRequest req,
-                                                                  @AuthenticationPrincipal AuthPrincipal authPrincipal) {
+    public ResponseEntity<ApiResponse<FeedbackResponse>> feedback(@AuthenticationPrincipal AuthPrincipal authPrincipal,
+                                                                  @PathVariable String publicId,
+                                                                  @Valid @RequestBody FeedbackRequest req) {
         Long userId  = authPrincipal != null ? authPrincipal.userId()  : null;
         Long guestId = authPrincipal != null ? authPrincipal.guestId() : null;
 

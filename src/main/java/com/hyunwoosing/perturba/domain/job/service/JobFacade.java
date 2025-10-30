@@ -1,13 +1,11 @@
 package com.hyunwoosing.perturba.domain.job.service;
 
 import com.hyunwoosing.perturba.domain.job.entity.TransformJob;
+import com.hyunwoosing.perturba.domain.job.mapper.JobListMapper;
 import com.hyunwoosing.perturba.domain.job.mapper.JobMapper;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.CreateJobRequest;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.FeedbackRequest;
-import com.hyunwoosing.perturba.domain.job.web.dto.response.CreateJobResponse;
-import com.hyunwoosing.perturba.domain.job.web.dto.response.FeedbackResponse;
-import com.hyunwoosing.perturba.domain.job.web.dto.response.JobResultResponse;
-import com.hyunwoosing.perturba.domain.job.web.dto.response.JobStatusResponse;
+import com.hyunwoosing.perturba.domain.job.web.dto.response.*;
 import com.hyunwoosing.perturba.domain.user.entity.User;
 import org.springframework.lang.Nullable;
 import lombok.RequiredArgsConstructor;
@@ -38,5 +36,9 @@ public class JobFacade {
     public FeedbackResponse saveFeedback(String publicId, FeedbackRequest req, Long userId, Long guestId) {
         jobService.saveFeedback(publicId, req, userId, guestId);
         return FeedbackResponse.builder().accepted(true).build();
+    }
+
+    public JobListResponse listMyJobs(Long userId, Long guestId, int page, int size) {
+        return JobListMapper.toResponse(jobService.listMyJobs(userId, guestId, page, size));
     }
 }
