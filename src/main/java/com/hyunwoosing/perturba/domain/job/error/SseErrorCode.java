@@ -3,16 +3,13 @@ package com.hyunwoosing.perturba.domain.job.error;
 import com.hyunwoosing.perturba.common.api.error.ErrorCode;
 import org.springframework.http.HttpStatus;
 
-public enum JobErrorCode implements ErrorCode {
-    INPUT_ASSET_NOT_FOUND(HttpStatus.NOT_FOUND),
-    ASSET_NOT_OWNED_BY_USER(HttpStatus.FORBIDDEN),
-    JOB_NOT_COMPLETED(HttpStatus.BAD_REQUEST),
-    JOB_NOT_FOUND(HttpStatus.NOT_FOUND),
+public enum SseErrorCode implements ErrorCode {
+    NOT_ALLOWED_STATUS(HttpStatus.FORBIDDEN),
     ;
 
     private final HttpStatus status;
 
-    JobErrorCode(HttpStatus s) {
+    SseErrorCode(HttpStatus s) {
         this.status = s;
     }
 

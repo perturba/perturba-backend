@@ -6,10 +6,10 @@ import com.hyunwoosing.perturba.domain.job.mapper.JobMapper;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.CreateJobRequest;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.FeedbackRequest;
 import com.hyunwoosing.perturba.domain.job.web.dto.response.*;
-import com.hyunwoosing.perturba.domain.user.entity.User;
 import org.springframework.lang.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 
 @Service
 @RequiredArgsConstructor
@@ -41,4 +41,5 @@ public class JobFacade {
     public JobListResponse listMyJobs(Long userId, Long guestId, int page, int size) {
         return JobListMapper.toResponse(jobService.listMyJobs(userId, guestId, page, size));
     }
+
 }
