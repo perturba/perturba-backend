@@ -59,7 +59,7 @@ public class TransformJob extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     @Builder.Default
-    private JobStatus status = JobStatus.QUEUED;
+    private JobStatus status = JobStatus.PROGRESS;
 
     @Column(name = "fail_reason", length = 500)
     private String failReason;
@@ -104,9 +104,9 @@ public class TransformJob extends BaseEntity {
 
     //Business Logic Methods
 
-    //작업 다시 대기상태로
+    //작업 재시작
     public void resetToQueued() {
-        this.status = JobStatus.QUEUED;
+        this.status = JobStatus.PROGRESS;
         this.failReason = null;
         this.startedAt = null;
         this.respondedAt = null;
@@ -117,15 +117,9 @@ public class TransformJob extends BaseEntity {
         this.perturbationVisAsset = null;
     }
 
-    //작업 시작
-    public void markStarted(Instant now) {
-        this.status = JobStatus.STARTED;
-        if (this.startedAt == null) this.startedAt = now;
-    }
-
-    //작업 진행 중으로
-    public void markProgress() {
+    public void markProgress(Instant now) {
         this.status = JobStatus.PROGRESS;
+        if (this.startedAt == null) this.startedAt = now;
     }
 
     //작업 완료
@@ -133,13 +127,12 @@ public class TransformJob extends BaseEntity {
                               Asset perturbed,
                               Asset deepfakeOutput,
                               Asset visiblePerturbation) {
-        if (this.startedAt == null) this.startedAt = now;
+        if (this.startedAt == null) this.startedAt = now;   // 안전장치
         this.status = JobStatus.COMPLETED;
         this.completedAt = now;
         this.perturbedAsset = perturbed;
         this.deepfakeOutputAsset = deepfakeOutput;
         this.perturbationVisAsset = visiblePerturbation;
-
         if (this.requestMode == RequestMode.SYNC && this.respondedAt == null) {
             this.respondedAt = now;
         }

@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface AssetRepository extends JpaRepository<Asset, Long> {
     Optional<Asset> findBySha256HexAndOwner(String sha256Hex, User owner);
+
+    Optional<Asset> findByS3Url(String s3Url);
 }

@@ -10,13 +10,11 @@ import com.hyunwoosing.perturba.domain.job.entity.TransformJob;
 import com.hyunwoosing.perturba.domain.job.entity.enums.JobStatus;
 import com.hyunwoosing.perturba.domain.job.error.JobErrorCode;
 import com.hyunwoosing.perturba.domain.job.error.JobException;
-import com.hyunwoosing.perturba.domain.job.mapper.JobListMapper;
 import com.hyunwoosing.perturba.domain.job.mapper.JobMapper;
 import com.hyunwoosing.perturba.domain.job.repository.JobFeedbackRepository;
 import com.hyunwoosing.perturba.domain.job.repository.JobRepository;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.CreateJobRequest;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.FeedbackRequest;
-import com.hyunwoosing.perturba.domain.job.web.dto.response.JobListResponse;
 import com.hyunwoosing.perturba.domain.user.entity.User;
 import com.hyunwoosing.perturba.domain.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -27,7 +25,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -79,7 +76,7 @@ public class JobService {
                 .inputAsset(input)
                 .intensity(req.intensity())
                 .notifyVia(req.notifyVia())
-                .status(JobStatus.QUEUED)
+                .status(JobStatus.PROGRESS)
                 .paramKey(paramKey)
                 .idempotencyKey((idemKey != null && !idemKey.isBlank()) ? idemKey : null)
                 .build();
@@ -131,37 +128,6 @@ public class JobService {
                 ? jobRepository.findByUser_IdOrderByCreatedAtDesc(userId, pageable)
                 : jobRepository.findByGuest_IdOrderByCreatedAtDesc(guestId, pageable);
     }
-
-
-    //mark.. 사용안할수도?
-    @Transactional
-    public void markStarted(String publicId) {
-        TransformJob j = getByPublicId(publicId);
-        j.markStarted(Instant.now());
-        jobRepository.save(j);
-    }
-    @Transactional
-    public void markProgress(String publicId) {
-        TransformJob j = getByPublicId(publicId);
-        j.markProgress();
-        jobRepository.save(j);
-    }
-    @Transactional
-    public void markCompleted(String publicId, Asset perturbed, Asset deepfakeOutput, Asset visiblePerturbation) {
-        TransformJob j = getByPublicId(publicId);
-        j.markCompleted(Instant.now(), perturbed, deepfakeOutput, visiblePerturbation);
-        jobRepository.save(j);
-    }
-    @Transactional
-    public void markFailed(String publicId, String reason) {
-        TransformJob j = getByPublicId(publicId);
-        j.markFailed(reason, Instant.now());
-        jobRepository.save(j);
-    }
-
-
-
-
 
 
     //private
