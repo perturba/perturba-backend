@@ -3,6 +3,7 @@ package com.hyunwoosing.perturba.domain.asset.web;
 import com.hyunwoosing.perturba.common.api.factory.ApiResponseFactory;
 import com.hyunwoosing.perturba.common.api.response.ApiResponse;
 import com.hyunwoosing.perturba.common.security.ActorResolver;
+import com.hyunwoosing.perturba.common.security.AuthPrincipal;
 import com.hyunwoosing.perturba.domain.asset.service.AssetFacade;
 import com.hyunwoosing.perturba.domain.asset.web.dto.request.CompleteUploadRequest;
 import com.hyunwoosing.perturba.domain.asset.web.dto.response.CompleteUploadResponse;
@@ -11,6 +12,7 @@ import com.hyunwoosing.perturba.domain.asset.web.dto.response.UploadUrlResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,21 +24,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class AssetController {
 
     private final AssetFacade assetFacade;
-    private final ActorResolver actorResolver;
 
     @PostMapping("/upload-url")
-    public ApiResponse<UploadUrlResponse> issueUploadUrl(@Valid @RequestBody UploadUrlRequest req,
+    public ApiResponse<UploadUrlResponse> issueUploadUrl(@AuthenticationPrincipal AuthPrincipal auth,
+                                                         @Valid @RequestBody UploadUrlRequest req,
                                                          HttpServletRequest httpRequest) {
-        Long userId = actorResolver.currentUserId(httpRequest);
+        Long userId = (auth.userId() != null) ? auth.userId() : null;
 
         UploadUrlResponse res = assetFacade.issueUploadUrl(req, userId);
         return ApiResponseFactory.success(res);
     }
 
     @PostMapping("/complete")
-    public ApiResponse<CompleteUploadResponse> complete(@Valid @RequestBody CompleteUploadRequest req,
+    public ApiResponse<CompleteUploadResponse> complete(@AuthenticationPrincipal AuthPrincipal auth,
+                                                        @Valid @RequestBody CompleteUploadRequest req,
                                                         HttpServletRequest httpRequest) {
-        Long userId = actorResolver.currentUserId(httpRequest);
+        Long userId = (auth.userId() != null) ? auth.userId() : null;
 
         CompleteUploadResponse res = assetFacade.completeUpload(req, userId);
         return ApiResponseFactory.success(res);
