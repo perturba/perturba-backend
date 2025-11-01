@@ -2,9 +2,9 @@ package com.hyunwoosing.perturba.domain.asset.web;
 
 import com.hyunwoosing.perturba.common.api.factory.ApiResponseFactory;
 import com.hyunwoosing.perturba.common.api.response.ApiResponse;
-import com.hyunwoosing.perturba.common.security.ActorResolver;
 import com.hyunwoosing.perturba.common.security.AuthPrincipal;
 import com.hyunwoosing.perturba.domain.asset.service.AssetFacade;
+import com.hyunwoosing.perturba.domain.asset.service.AssetService;
 import com.hyunwoosing.perturba.domain.asset.web.dto.request.CompleteUploadRequest;
 import com.hyunwoosing.perturba.domain.asset.web.dto.response.CompleteUploadResponse;
 import com.hyunwoosing.perturba.domain.asset.web.dto.request.UploadUrlRequest;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AssetController {
 
-    private final AssetFacade assetFacade;
+    private final AssetService assetService;
 
     @PostMapping("/upload-url")
     public ApiResponse<UploadUrlResponse> issueUploadUrl(@AuthenticationPrincipal AuthPrincipal auth,
@@ -31,7 +31,7 @@ public class AssetController {
                                                          HttpServletRequest httpRequest) {
         Long userId = (auth.userId() != null) ? auth.userId() : null;
 
-        UploadUrlResponse res = assetFacade.issueUploadUrl(req, userId);
+        UploadUrlResponse res = assetService.issueUploadUrl(req, userId);
         return ApiResponseFactory.success(res);
     }
 
@@ -41,7 +41,7 @@ public class AssetController {
                                                         HttpServletRequest httpRequest) {
         Long userId = (auth.userId() != null) ? auth.userId() : null;
 
-        CompleteUploadResponse res = assetFacade.completeUpload(req, userId);
+        CompleteUploadResponse res = assetService.completeUpload(req, userId);
         return ApiResponseFactory.success(res);
     }
 }
