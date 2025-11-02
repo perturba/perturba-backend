@@ -1,6 +1,6 @@
 package com.hyunwoosing.perturba.domain.job.web;
 
-import com.hyunwoosing.perturba.domain.job.service.JobSseFacade;
+import com.hyunwoosing.perturba.domain.job.service.JobEventService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,10 +14,10 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @RequiredArgsConstructor
 public class JobSseController {
 
-    private final JobSseFacade jobSseFacade;
+    private final JobEventService jobEventService;
 
     @GetMapping(value = "/{publicId}/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public SseEmitter events(@PathVariable String publicId) {
-        return jobSseFacade.subscribe(publicId);
+        return jobEventService.subscribe(publicId);
     }
 }

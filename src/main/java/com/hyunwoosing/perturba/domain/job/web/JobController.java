@@ -3,8 +3,6 @@ package com.hyunwoosing.perturba.domain.job.web;
 import com.hyunwoosing.perturba.common.api.factory.ApiResponseFactory;
 import com.hyunwoosing.perturba.common.api.response.ApiResponse;
 import com.hyunwoosing.perturba.common.security.AuthPrincipal;
-import com.hyunwoosing.perturba.domain.job.mapper.JobMapper;
-import com.hyunwoosing.perturba.domain.job.service.JobFacade;
 import com.hyunwoosing.perturba.domain.job.service.JobService;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.*;
 import com.hyunwoosing.perturba.domain.job.web.dto.response.*;
