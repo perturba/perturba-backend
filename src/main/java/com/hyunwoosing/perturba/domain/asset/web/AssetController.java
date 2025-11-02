@@ -3,7 +3,6 @@ package com.hyunwoosing.perturba.domain.asset.web;
 import com.hyunwoosing.perturba.common.api.factory.ApiResponseFactory;
 import com.hyunwoosing.perturba.common.api.response.ApiResponse;
 import com.hyunwoosing.perturba.common.security.AuthPrincipal;
-import com.hyunwoosing.perturba.domain.asset.service.AssetFacade;
 import com.hyunwoosing.perturba.domain.asset.service.AssetService;
 import com.hyunwoosing.perturba.domain.asset.web.dto.request.CompleteUploadRequest;
 import com.hyunwoosing.perturba.domain.asset.web.dto.response.CompleteUploadResponse;
