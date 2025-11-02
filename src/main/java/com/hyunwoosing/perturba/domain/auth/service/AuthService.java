@@ -1,10 +1,16 @@
 package com.hyunwoosing.perturba.domain.auth.service;
 
+import com.hyunwoosing.perturba.common.config.props.AuthProps;
 import com.hyunwoosing.perturba.common.security.JwtProvider;
-import com.hyunwoosing.perturba.domain.user.entity.User;
+import com.hyunwoosing.perturba.domain.auth.error.AuthErrorCode;
+import com.hyunwoosing.perturba.domain.auth.error.AuthException;
 import com.hyunwoosing.perturba.domain.auth.mapper.OAuthProfile;
 import com.hyunwoosing.perturba.domain.auth.mapper.UserOAuthMapper;
+import com.hyunwoosing.perturba.domain.auth.web.dto.MeResponse;
+import com.hyunwoosing.perturba.domain.auth.web.dto.TokenResponse;
+import com.hyunwoosing.perturba.domain.user.entity.User;
 import com.hyunwoosing.perturba.domain.user.repository.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,10 +23,11 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
+    private final RefreshTokenService refreshTokenService;
+    private final AuthProps authProps;
 
     public User upsertFromOAuthClaims(Map<String, Object> claims) {
         OAuthProfile p = UserOAuthMapper.toProfile(claims);
-
         return userRepository.findByEmail(p.email())
                 .map(u -> {
                     UserOAuthMapper.applyOAuthUpdate(u, p, LocalDateTime.now());
@@ -31,5 +38,34 @@ public class AuthService {
 
     public String issueAccess(User user) {
         return jwtProvider.createAccess(user.getId(), user.getEmail());
+    }
+
+    public MeResponse me(Long userId) {
+        if (userId == null) {
+            throw new AuthException(AuthErrorCode.UNAUTHENTICATED, "No access token");
+        }
+        return MeResponse.builder()
+                .userId(userId)
+                .build();
+    }
+
+    public TokenResponse refresh(String refreshOpaque, String clientIp, HttpServletResponse res) {
+        if (refreshOpaque == null || refreshOpaque.isBlank()) {
+            throw new AuthException(AuthErrorCode.REFRESH_NOT_FOUND, "No refresh cookie");
+        }
+
+        String rotated = refreshTokenService.rotate(res, refreshOpaque, clientIp);
+        User owner = refreshTokenService.validateAndGetOwner(rotated);
+        String access = issueAccess(owner);
+
+        return TokenResponse.builder()
+                .accessToken(access)
+                .tokenType("Bearer")
+                .expiresIn(authProps.jwt().accessTtlSec())
+                .build();
+    }
+
+    public void logout(HttpServletResponse res) {
+        refreshTokenService.expireCookie(res);
     }
 }

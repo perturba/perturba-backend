@@ -10,11 +10,13 @@ import com.hyunwoosing.perturba.domain.job.entity.TransformJob;
 import com.hyunwoosing.perturba.domain.job.entity.enums.JobStatus;
 import com.hyunwoosing.perturba.domain.job.error.JobErrorCode;
 import com.hyunwoosing.perturba.domain.job.error.JobException;
+import com.hyunwoosing.perturba.domain.job.mapper.JobListMapper;
 import com.hyunwoosing.perturba.domain.job.mapper.JobMapper;
 import com.hyunwoosing.perturba.domain.job.repository.JobFeedbackRepository;
 import com.hyunwoosing.perturba.domain.job.repository.JobRepository;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.CreateJobRequest;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.FeedbackRequest;
+import com.hyunwoosing.perturba.domain.job.web.dto.response.*;
 import com.hyunwoosing.perturba.domain.user.entity.User;
 import com.hyunwoosing.perturba.domain.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -42,7 +44,7 @@ public class JobService {
     //todo: 멱등키는 같은데 파라미터가 다른경우 에러처리 필요할듯.. 어디에서 에러를 터트릴지는 고민
 
     @Transactional
-    public TransformJob create(CreateJobRequest req, Long userId, Long guestId, @Nullable String idemKey) {
+    public CreateJobResponse create(CreateJobRequest req, Long userId, Long guestId, @Nullable String idemKey) {
 
         User user = resolveUser(userId);
         GuestSession guest = resolveGuest(guestId);
@@ -58,14 +60,14 @@ public class JobService {
         if (idemKey != null && !idemKey.isBlank()) {
             Optional<TransformJob> existingByIdempotency = findByIdempotency(user, guestId, idemKey);
             if (existingByIdempotency.isPresent())
-                return existingByIdempotency.get();
+                return JobMapper.toCreateJobResponse(existingByIdempotency.get());
         }
 
         //user, input, paramKey 가 동일한 job이 존재할 경우 기존의 응답을 재사용, 게스트는 정책상 적용 안할듯..
         String paramKey = ParamKeyUtil.of(req.intensity());
         Optional<TransformJob> existing = findExistingJob(user, input, paramKey);
         if (existing.isPresent())
-            return existing.get();
+            return JobMapper.toCreateJobResponse(existing.get());
 
 
         TransformJob job = TransformJob.builder()
@@ -89,15 +91,53 @@ public class JobService {
             //동시성처리, 같은 멱등키로 동시에 들어온 경우 유니크 충돌 발생, 다시 조회후 반환
             if (idemKey != null && !idemKey.isBlank()) {
                 if (user != null) {
-                    return jobRepository.findByUserAndIdempotencyKey(user, idemKey).orElseThrow(() -> e);
+                    return JobMapper.toCreateJobResponse(jobRepository.findByUserAndIdempotencyKey(user, idemKey).orElseThrow(() -> e));
                 } else if (guestId != null) {
-                    return jobRepository.findByGuest_IdAndIdempotencyKey(guestId, idemKey).orElseThrow(() -> e);
+                    return JobMapper.toCreateJobResponse(jobRepository.findByGuest_IdAndIdempotencyKey(guestId, idemKey).orElseThrow(() -> e));
                 }
             }
             throw e;
         }
+        return JobMapper.toCreateJobResponse(job);
+    }
 
-        return job;
+    @Transactional(readOnly = true)
+    public JobStatusResponse getStatus(String publicId) {
+        return JobMapper.toStatusResponse(getByPublicId(publicId));
+    }
+
+    @Transactional(readOnly = true)
+    public JobResultResponse getResult(String publicId) {
+        return JobMapper.toResultResponse(getByPublicId(publicId));
+    }
+
+    @Transactional
+    public FeedbackResponse saveFeedback(String publicId, FeedbackRequest req, Long userId, Long guestId) {
+        TransformJob job = getByPublicId(publicId);
+        User user = resolveUser(userId);
+        GuestSession guest = resolveGuest(guestId);
+
+        JobFeedback jobFeedback = JobMapper.toJobFeedback(job, req, user, guest);
+        jobFeedbackRepository.save(jobFeedback);
+        return FeedbackResponse.builder()
+                .accepted(true)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public JobListResponse listMyJobs(Long userId, Long guestId, int page, int size) {
+        if (userId == null && guestId == null) {
+            throw new IllegalArgumentException("no actor (user or guest)");
+        }
+        int pageSize = Math.min(Math.max(size, 1), 100);
+        PageRequest pageable = PageRequest.of(page, pageSize);
+
+
+        Page<TransformJob> transformJobs = (userId != null)
+                ? jobRepository.findByUser_IdOrderByCreatedAtDesc(userId, pageable)
+                : jobRepository.findByGuest_IdOrderByCreatedAtDesc(guestId, pageable);
+
+        return JobListMapper.toResponse(transformJobs);
     }
 
     @Transactional(readOnly = true)
@@ -106,28 +146,8 @@ public class JobService {
                 new JobException(JobErrorCode.JOB_NOT_FOUND, "해당 작업을 찾을 수 없습니다."));
     }
 
-    @Transactional
-    public void saveFeedback(String publicId, FeedbackRequest req, Long userId, Long guestId) {
-        TransformJob job = getByPublicId(publicId);
-        User user = resolveUser(userId);
-        GuestSession guest = resolveGuest(guestId);
 
-        JobFeedback jobFeedback = JobMapper.toJobFeedback(job, req, user, guest);
-        jobFeedbackRepository.save(jobFeedback);
-    }
 
-    @Transactional(readOnly = true)
-    public Page<TransformJob> listMyJobs(Long userId, Long guestId, int page, int size) {
-        if (userId == null && guestId == null) {
-            throw new IllegalArgumentException("no actor (user or guest)");
-        }
-        int pageSize = Math.min(Math.max(size, 1), 100);
-        var pageable = PageRequest.of(page, pageSize);
-
-        return (userId != null)
-                ? jobRepository.findByUser_IdOrderByCreatedAtDesc(userId, pageable)
-                : jobRepository.findByGuest_IdOrderByCreatedAtDesc(guestId, pageable);
-    }
 
 
     //private

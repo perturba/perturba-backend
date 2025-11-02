@@ -11,6 +11,7 @@ import com.hyunwoosing.perturba.domain.job.event.JobFailedEvent;
 import com.hyunwoosing.perturba.domain.job.event.JobProgressEvent;
 import com.hyunwoosing.perturba.domain.job.repository.JobRepository;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.JobCompleteRequest;
+import com.hyunwoosing.perturba.domain.job.web.dto.request.JobFailRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -45,7 +46,7 @@ public class JobStatusService {
     }
 
     @Transactional
-    public void complete(String publicId, JobCompleteRequest req) {
+    public void markComplete(String publicId, JobCompleteRequest req) {
         TransformJob job = load(publicId);
         Asset perturbed       = resolveByUrlOrNull(req.perturbedAssetUrl());
         Asset deepfakeOutput  = resolveByUrlOrNull(req.deepfakeUrl());
@@ -63,11 +64,11 @@ public class JobStatusService {
     }
 
     @Transactional
-    public void markFailed(String publicId, String reason) {
+    public void markFailed(String publicId, JobFailRequest request) {
         TransformJob job = load(publicId);
-        job.markFailed(reason, Instant.now());
+        job.markFailed(request.reason(), Instant.now());
 
-        events.publishEvent(new JobFailedEvent(publicId, reason));
+        events.publishEvent(new JobFailedEvent(publicId, request.reason()));
     }
 
 

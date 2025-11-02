@@ -4,8 +4,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
-public class RequestIpResolver {
-    public String resolve(HttpServletRequest req){
+public class ClientIpResolver {
+    public static String resolve(HttpServletRequest req){
         //IP 추적
         String[] headers = {"X-Forwarded-For", "X-Real-IP", "CF-Connecting-IP"};
 
