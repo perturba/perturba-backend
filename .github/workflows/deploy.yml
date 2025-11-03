@@ -1,0 +1,60 @@
+name: Build & Deploy to EC2 via ECR
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # - name: Set up JDK 17
+      #   uses: actions/setup-java@v4
+      #   with:
+      #     distribution: temurin
+      #     java-version: "17"
+      # - name: Build jar
+      #   run: ./gradlew clean build -x test
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Docker image
+        run: |
+          REGISTRY="${{ steps.ecr.outputs.registry }}"   # e.g. 327784329358.dkr.ecr.us-west-2.amazonaws.com
+          IMAGE="$REGISTRY/${{ vars.ECR_REPOSITORY }}"   # .../perturba
+          TAG_SHA="${{ github.sha }}"
+          docker build -t "$IMAGE:$TAG_SHA" -t "$IMAGE:latest" .
+
+      - name: Push Docker image
+        run: |
+          REGISTRY="${{ steps.ecr.outputs.registry }}"
+          IMAGE="$REGISTRY/${{ vars.ECR_REPOSITORY }}"
+          TAG_SHA="${{ github.sha }}"
+          docker push "$IMAGE:$TAG_SHA"
+          docker push "$IMAGE:latest"
+
+      - name: Deploy on EC2 via SSM
+        run: |
+          aws ssm send-command \
+            --instance-ids "${{ vars.EC2_INSTANCE_ID }}" \
+            --document-name "AWS-RunShellScript" \
+            --comment "perturba deploy" \
+            --parameters commands=["sudo bash /opt/perturba/deploy.sh"] \
+            --region "${{ vars.AWS_REGION }}"
