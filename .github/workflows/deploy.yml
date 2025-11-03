@@ -28,25 +28,38 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build Docker image
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          TAG_SHA: ${{ github.sha }}
         run: |
-          REGISTRY="${{ steps.ecr.outputs.registry }}"   # e.g. 327784329358.dkr.ecr.us-west-2.amazonaws.com
-          IMAGE="$REGISTRY/${{ vars.ECR_REPOSITORY }}"   # .../perturba
-          TAG_SHA="${{ github.sha }}"
-          docker build -t "$IMAGE:$TAG_SHA" -t "$IMAGE:latest" .
+          IMAGE="$REGISTRY/$REPOSITORY"
+          docker build -t "$IMAGE:$TAG_SHA" .
 
-      - name: Push Docker image
+      - name: Push Docker image (SHA only)
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          TAG_SHA: ${{ github.sha }}
         run: |
-          REGISTRY="${{ steps.ecr.outputs.registry }}"
-          IMAGE="$REGISTRY/${{ vars.ECR_REPOSITORY }}"
-          TAG_SHA="${{ github.sha }}"
+          IMAGE="$REGISTRY/$REPOSITORY"
           docker push "$IMAGE:$TAG_SHA"
-          docker push "$IMAGE:latest"
 
       - name: Deploy on EC2 via SSM
+        env:
+          REGISTRY: ${{ steps.ecr.outputs.registry }}
+          REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          TAG_SHA: ${{ github.sha }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
         run: |
           aws ssm send-command \
             --instance-ids "${{ vars.EC2_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
             --comment "perturba deploy" \
-            --parameters commands=["sudo bash /opt/perturba/deploy.sh"] \
-            --region "${{ vars.AWS_REGION }}"
+            --parameters commands="[
+              \"export REGISTRY=$REGISTRY\",
+              \"export REPOSITORY=$REPOSITORY\",
+              \"export TAG=$TAG_SHA\",
+              \"sudo -E bash /opt/perturba/deploy.sh\"
+            ]" \
+            --region "$AWS_REGION"
