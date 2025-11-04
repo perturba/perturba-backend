@@ -20,8 +20,8 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ vars.ROLE_TO_ASSUME }}
-          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ secrets.ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: ecr
@@ -30,7 +30,7 @@ jobs:
       - name: Build Docker image
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
-          REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
           TAG_SHA: ${{ github.sha }}
         run: |
           IMAGE="$REGISTRY/$REPOSITORY"
@@ -39,7 +39,7 @@ jobs:
       - name: Push Docker image (SHA only)
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
-          REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
           TAG_SHA: ${{ github.sha }}
         run: |
           IMAGE="$REGISTRY/$REPOSITORY"
@@ -48,12 +48,12 @@ jobs:
       - name: Deploy on EC2 via SSM
         env:
           REGISTRY: ${{ steps.ecr.outputs.registry }}
-          REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+          REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
           TAG_SHA: ${{ github.sha }}
-          AWS_REGION: ${{ vars.AWS_REGION }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
           aws ssm send-command \
-            --instance-ids "${{ vars.EC2_INSTANCE_ID }}" \
+            --instance-ids "${{ secrets.EC2_INSTANCE_ID }}" \
             --document-name "AWS-RunShellScript" \
             --comment "perturba deploy" \
             --parameters commands="[
