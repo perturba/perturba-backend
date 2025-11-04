@@ -1,5 +1,6 @@
 package com.hyunwoosing.perturba.domain.job.mapper;
 
+import com.hyunwoosing.perturba.common.storage.S3PresignService;
 import com.hyunwoosing.perturba.common.util.TimeUtil;
 import com.hyunwoosing.perturba.domain.asset.entity.Asset;
 import com.hyunwoosing.perturba.domain.guest.entity.GuestSession;
@@ -36,30 +37,36 @@ public class JobMapper {
                 .build();
     }
 
-    public static JobResultResponse toResultResponse(TransformJob job) {
-        if (job == null)
-            return JobResultResponse.builder().build();
-        return JobResultResponse.builder()
-                .input(toSection(job.getInputAsset()))
-                .perturbed(toSection(job.getPerturbedAsset()))
-                .deepfakeOutput(toSection(job.getDeepfakeOutputAsset()))
-                .perturbationVis(toSection(job.getPerturbationVisAsset()))
-                .createdAt(TimeUtil.toKst(job.getCreatedAt()))
-                .completedAt(TimeUtil.toKst(job.getCompletedAt()))
-                .build();
-    }
+        public static JobResultResponse toResultResponse(TransformJob job, S3PresignService presign) {
+            if (job == null) {
+                return JobResultResponse.builder().build();
+            }
+            return JobResultResponse.builder()
+                    .input(toSection(job.getInputAsset(), presign))
+                    .perturbed(toSection(job.getPerturbedAsset(), presign))
+                    .deepfakeOutput(toSection(job.getDeepfakeOutputAsset(), presign))
+                    .perturbationVis(toSection(job.getPerturbationVisAsset(), presign))
+                    .createdAt(TimeUtil.toKst(job.getCreatedAt()))
+                    .completedAt(TimeUtil.toKst(job.getCompletedAt()))
+                    .build();
+        }
 
-    public static JobResultResponse.Section toSection(Asset asset) {
-        if (asset == null)
-            return null;
-        return JobResultResponse.Section.builder()
-                .assetId(asset.getId())
-                .url(asset.getS3Url())
-                .mimeType(asset.getMimeType())
-                .width(asset.getWidth())
-                .height(asset.getHeight())
-                .build();
-    }
+        public static JobResultResponse.Section toSection(Asset asset, S3PresignService presign) {
+            if (asset == null) return null;
+            String objectKey = asset.getObjectKey();
+            String downloadUrl = presign.presignGet(objectKey);
+
+            return JobResultResponse.Section.builder()
+                    .assetId(asset.getId())
+                    .objectKey(objectKey)
+                    .url(downloadUrl)
+                    .mimeType(asset.getMimeType())
+                    .width(asset.getWidth())
+                    .height(asset.getHeight())
+                    .build();
+        }
+
+
 
     public static JobFeedback toJobFeedback(TransformJob job, FeedbackRequest request, User user, GuestSession guest) {
         if (job == null || request == null)

@@ -50,6 +50,11 @@ dependencies {
 
     implementation "commons-codec:commons-codec:1.17.1"
     implementation "com.github.f4b6a3:ulid-creator:5.2.3"
+
+    implementation platform('software.amazon.awssdk:bom:2.25.57')
+    implementation 'software.amazon.awssdk:s3'
+    implementation 'software.amazon.awssdk:s3-transfer-manager'
+    implementation 'software.amazon.awssdk:presigner'
 }
 
 tasks.named('test') {

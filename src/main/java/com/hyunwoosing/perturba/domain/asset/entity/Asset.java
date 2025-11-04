@@ -31,8 +31,8 @@ public class Asset extends BaseEntity {
     @Column(name = "kind", nullable = false)
     private AssetKind kind;
 
-    @Column(name = "s3_url", length = 1024, nullable = false)
-    private String s3Url;
+    @Column(name = "object_key", length = 1024, nullable = false)
+    private String objectKey;
 
     @Column(name = "mime_type", length = 100)
     private String mimeType;

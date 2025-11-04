@@ -33,7 +33,7 @@ public class AssetService {
     private final UserRepository userRepository;
 
     public UploadUrlResponse issueUploadUrl(UploadUrlRequest request, @Nullable Long userId) {
-        String key = "users/" + (userId == null ? "guest" : userId) + "/" + UUID.randomUUID() + "-" + request.filename();
+        String key = buildObjectKey(request.filename(), userId);
 
         PresignedPutObjectRequest signed = s3PresignService.presignPut(key, request.mimeType());
         Map<String, List<String>> headers = signed.signedHeaders();
@@ -50,30 +50,41 @@ public class AssetService {
                 .build();
     }
 
-    @Transactional
+
     public CompleteUploadResponse completeUpload(CompleteUploadRequest request, @Nullable Long userId) {
         User owner = (userId != null) ? userRepository.findById(userId).orElse(null) : null;
-        String publicUrl = s3PresignService.publicUrl(request.objectKey());
+        String objectKey = request.objectKey(); //객체 경로
+        Asset asset = createInputAsset(objectKey, request, owner);
 
-        Asset asset = createInputAsset(publicUrl, request, owner);
-        return AssetMapper.toCompleteUploadResponse(asset);
+        return CompleteUploadResponse.builder()
+                .assetId(asset.getId())
+                .kind(asset.getKind())
+                .objectKey(objectKey)
+                .url(s3PresignService.presignGet(objectKey))
+                .mimeType(asset.getMimeType())
+                .sizeBytes(asset.getSizeBytes())
+                .width(asset.getWidth())
+                .height(asset.getHeight())
+                .sha256Hex(asset.getSha256Hex())
+                .build();
+
     }
 
 
 
-
     //private
-    private Asset createInputAsset(String publicUrl, CompleteUploadRequest request, @Nullable User owner) {
+    private Asset createInputAsset(String objectKey, CompleteUploadRequest request, @Nullable User owner) {
         if (request.sha256Hex() != null && !request.sha256Hex().isBlank() && owner != null) {
             Optional<Asset> existing = assetRepository.findBySha256HexAndOwner(request.sha256Hex(), owner);
-            if (existing.isPresent()) return existing.get();
+            if (existing.isPresent())
+                return existing.get();
         }
 
         Asset asset = Asset.builder()
                 .job(null)
                 .owner(owner)
                 .kind(AssetKind.INPUT)
-                .s3Url(publicUrl)
+                .objectKey(objectKey)
                 .mimeType(request.mimeType())
                 .sizeBytes(request.sizeBytes())
                 .width(request.width())
@@ -82,5 +93,10 @@ public class AssetService {
                 .build();
 
         return assetRepository.save(asset);
+    }
+
+    private String buildObjectKey(String filename, @Nullable Long userId) {
+        String owner = (userId == null) ? "guest" : userId.toString();
+        return "users/" + owner + "/" + UUID.randomUUID() + "-" + filename;
     }
 }

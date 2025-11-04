@@ -7,6 +7,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record S3Props(
         String bucket,
         String region,
-        Integer presignExpireSec,
-        String publicBaseUrl
+        Integer presignExpireSec
+
 ) {}
