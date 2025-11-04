@@ -7,6 +7,7 @@ import lombok.Builder;
 public record CompleteUploadResponse(
         Long assetId,
         AssetKind kind,
+        String objectKey,
         String url,
         String mimeType,
         Long sizeBytes,
