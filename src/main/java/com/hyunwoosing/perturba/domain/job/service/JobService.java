@@ -1,5 +1,6 @@
 package com.hyunwoosing.perturba.domain.job.service;
 
+import com.hyunwoosing.perturba.common.storage.S3PresignService;
 import com.hyunwoosing.perturba.common.util.ParamKeyUtil;
 import com.hyunwoosing.perturba.domain.asset.entity.Asset;
 import com.hyunwoosing.perturba.domain.asset.repository.AssetRepository;
@@ -40,18 +41,17 @@ public class JobService {
     private final AssetRepository assetRepository;
     private final GuestSessionRepository guestSessionRepository;
     private final JobFeedbackRepository jobFeedbackRepository;
+    private final S3PresignService s3PresignService;
+
 
     //todo: 멱등키는 같은데 파라미터가 다른경우 에러처리 필요할듯.. 어디에서 에러를 터트릴지는 고민
 
     @Transactional
     public CreateJobResponse create(CreateJobRequest req, Long userId, Long guestId, @Nullable String idemKey) {
-
         User user = resolveUser(userId);
         GuestSession guest = resolveGuest(guestId);
-
         Asset input = assetRepository.findById(req.inputAssetId()).orElseThrow(() ->
                 new JobException(JobErrorCode.INPUT_ASSET_NOT_FOUND, "입력된 Asset 을 찾을 수 없습니다."));
-
         if (user != null && input.getOwner() != null && !Objects.equals(input.getOwner().getId(), user.getId())) {
             throw new JobException(JobErrorCode.ASSET_NOT_OWNED_BY_USER, "현재 유저의 소유가 아닌 Asset 입니다.");
         }
@@ -68,8 +68,6 @@ public class JobService {
         Optional<TransformJob> existing = findExistingJob(user, input, paramKey);
         if (existing.isPresent())
             return JobMapper.toCreateJobResponse(existing.get());
-
-
         TransformJob job = TransformJob.builder()
                 .clientChannel(req.clientChannel())
                 .requestMode(req.requestMode())
@@ -84,7 +82,6 @@ public class JobService {
                 .build();
 
         //TODO: 외부 AI 서버 호출(Flask/Django)
-
         try {
             job = jobRepository.save(job);
         } catch (DataIntegrityViolationException e) {
@@ -101,15 +98,19 @@ public class JobService {
         return JobMapper.toCreateJobResponse(job);
     }
 
+
     @Transactional(readOnly = true)
     public JobStatusResponse getStatus(String publicId) {
         return JobMapper.toStatusResponse(getByPublicId(publicId));
     }
 
+
     @Transactional(readOnly = true)
     public JobResultResponse getResult(String publicId) {
-        return JobMapper.toResultResponse(getByPublicId(publicId));
+        TransformJob job = getByPublicId(publicId);
+        return JobMapper.toResultResponse(job, s3PresignService);
     }
+
 
     @Transactional
     public FeedbackResponse saveFeedback(String publicId, FeedbackRequest req, Long userId, Long guestId) {
@@ -124,10 +125,11 @@ public class JobService {
                 .build();
     }
 
+
     @Transactional(readOnly = true)
     public JobListResponse listMyJobs(Long userId, Long guestId, int page, int size) {
         if (userId == null && guestId == null) {
-            throw new IllegalArgumentException("no actor (user or guest)");
+            throw new JobException(JobErrorCode.UNAUTHORIZED, "사용자 또는 게스트 세션이 필요합니다.");
         }
         int pageSize = Math.min(Math.max(size, 1), 100);
         PageRequest pageable = PageRequest.of(page, pageSize);
@@ -139,6 +141,7 @@ public class JobService {
 
         return JobListMapper.toResponse(transformJobs);
     }
+
 
     @Transactional(readOnly = true)
     public TransformJob getByPublicId(String publicId) {

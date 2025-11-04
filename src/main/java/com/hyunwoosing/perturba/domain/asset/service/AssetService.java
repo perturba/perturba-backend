@@ -84,7 +84,7 @@ public class AssetService {
                 .job(null)
                 .owner(owner)
                 .kind(AssetKind.INPUT)
-                .s3Url(objectKey)
+                .objectKey(objectKey)
                 .mimeType(request.mimeType())
                 .sizeBytes(request.sizeBytes())
                 .width(request.width())

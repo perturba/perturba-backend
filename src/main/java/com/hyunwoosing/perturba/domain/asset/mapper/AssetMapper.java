@@ -13,7 +13,7 @@ public class AssetMapper {
         return CompleteUploadResponse.builder()
                 .assetId(asset.getId())
                 .kind(asset.getKind())
-                .url(asset.getS3Url())
+                .url(asset.getObjectKey())
                 .mimeType(asset.getMimeType())
                 .sizeBytes(asset.getSizeBytes())
                 .width(asset.getWidth())

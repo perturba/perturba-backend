@@ -8,6 +8,7 @@ public enum JobErrorCode implements ErrorCode {
     ASSET_NOT_OWNED_BY_USER(HttpStatus.FORBIDDEN),
     JOB_NOT_COMPLETED(HttpStatus.BAD_REQUEST),
     JOB_NOT_FOUND(HttpStatus.NOT_FOUND),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED)
     ;
 
     private final HttpStatus status;

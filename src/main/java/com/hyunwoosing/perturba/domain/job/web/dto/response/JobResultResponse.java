@@ -14,5 +14,12 @@ public record JobResultResponse(
         OffsetDateTime completedAt
 ) {
     @Builder
-    public record Section(Long assetId, String url, String mimeType, Integer width, Integer height) {}
+    public record Section(
+            Long assetId,
+            String objectKey,
+            String url,
+            String mimeType,
+            Integer width,
+            Integer height
+    ) {}
 }

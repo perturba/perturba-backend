@@ -8,9 +8,6 @@ import com.hyunwoosing.perturba.domain.job.web.dto.response.JobListResponse;
 import lombok.experimental.UtilityClass;
 import org.springframework.data.domain.Page;
 
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.util.stream.Collectors;
 
 @UtilityClass
@@ -22,7 +19,7 @@ public class JobListMapper {
                 .jobId(job.getId())
                 .publicId(job.getPublicId())
                 .status(job.getStatus())
-                .inputUrl(input != null ? input.getS3Url() : null)
+                .inputObjectKey(input != null ? input.getObjectKey() : null)
                 .width(input != null ? input.getWidth() : null)
                 .height(input != null ? input.getHeight() : null)
                 .createdAt(TimeUtil.toKst(job.getCreatedAt()))
@@ -32,7 +29,9 @@ public class JobListMapper {
 
     public static JobListResponse toResponse(Page<TransformJob> page) {
         return JobListResponse.builder()
-                .items(page.getContent().stream().map(JobListMapper::toItem).collect(Collectors.toList()))
+                .items(page.getContent().stream()
+                        .map(JobListMapper::toItem)
+                        .collect(Collectors.toList()))
                 .page(page.getNumber())
                 .size(page.getSize())
                 .totalElements(page.getTotalElements())
@@ -43,6 +42,4 @@ public class JobListMapper {
                 .hasPrevious(page.hasPrevious())
                 .build();
     }
-
-
 }
