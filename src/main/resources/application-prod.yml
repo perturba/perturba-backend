@@ -1,0 +1,72 @@
+# src/main/resources/application-prod.yml
+server:
+  port: ${SERVER_PORT:80}
+  forward-headers-strategy: native
+
+spring:
+  application:
+    name: perturba
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:none}
+    properties:
+      hibernate:
+        format_sql: ${HIBERNATE_FORMAT_SQL:false}
+        show_sql: ${HIBERNATE_SHOW_SQL:false}
+    open-in-view: false
+
+  data:
+    mongodb:
+      uri: ${SPRING_DATA_MONGODB_URI:}
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope: [openid, email, profile]
+            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+        provider:
+          google:
+            authorization-uri: "https://accounts.google.com/o/oauth2/v2/auth"
+            token-uri: "https://oauth2.googleapis.com/token"
+            user-info-uri: "https://www.googleapis.com/oauth2/v3/userinfo"
+            user-name-attribute: "email"
+
+logging:
+  level:
+    root: ${LOG_LEVEL_ROOT:INFO}
+    org.hibernate.SQL: ${LOG_LEVEL_HBM_SQL:WARN}
+    org.hibernate.type.descriptor.sql: ${LOG_LEVEL_HBM_TYPE:WARN}
+
+perturba:
+  s3:
+    bucket: ${PERTURBA_S3_BUCKET}
+    region: ${PERTURBA_S3_REGION:us-west-2}
+    public-base-url: ${PERTURBA_S3_PUBLIC_BASE_URL:}
+    presign-expire-sec: ${PERTURBA_S3_PRESIGN_EXPIRE_SEC:600}
+
+  auth:
+    jwt:
+      issuer: "perturba"
+      hmac-secret: ${JWT_HMAC_SECRET}
+      access-ttl-sec: 900
+    refresh:
+      cookie-name: "perturba_refresh"
+      cookie-domain: ${COOKIE_DOMAIN:localhost}
+      cookie-path: "/"
+      ttl-days: 30
+    guest:
+      cookie-name: "perturba_guest"
+      cookie-domain: ${COOKIE_DOMAIN:localhost}
+      cookie-path: "/"
+      ttl-days: 7
