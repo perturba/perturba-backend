@@ -52,7 +52,6 @@ perturba:
   s3:
     bucket: ${PERTURBA_S3_BUCKET}
     region: ${PERTURBA_S3_REGION:us-west-2}
-    public-base-url: ${PERTURBA_S3_PUBLIC_BASE_URL:}
     presign-expire-sec: ${PERTURBA_S3_PRESIGN_EXPIRE_SEC:600}
 
   auth:
