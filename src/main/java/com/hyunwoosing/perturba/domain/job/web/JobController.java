@@ -6,6 +6,8 @@ import com.hyunwoosing.perturba.common.security.AuthPrincipal;
 import com.hyunwoosing.perturba.domain.job.service.JobService;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.*;
 import com.hyunwoosing.perturba.domain.job.web.dto.response.*;
+import com.hyunwoosing.perturba.domain.job.web.dto.response.JobResultResponse;
+import com.hyunwoosing.perturba.domain.job.web.dto.response.JobStatusResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -50,13 +52,12 @@ public class JobController {
     }
 
     @PostMapping("/{publicId}/feedback")
-    public ResponseEntity<ApiResponse<FeedbackResponse>> feedback(@AuthenticationPrincipal AuthPrincipal authPrincipal,
+    public ResponseEntity<ApiResponse<Void>> feedback(@AuthenticationPrincipal AuthPrincipal authPrincipal,
                                                                   @PathVariable String publicId,
                                                                   @Valid @RequestBody FeedbackRequest req) {
         Long userId  = authPrincipal != null ? authPrincipal.userId()  : null;
         Long guestId = authPrincipal != null ? authPrincipal.guestId() : null;
-
-        FeedbackResponse res = jobService.saveFeedback(publicId, req, userId, guestId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseFactory.success(res));
+        jobService.saveFeedback(publicId, req, userId, guestId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponseFactory.success(null));
     }
 }

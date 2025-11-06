@@ -3,7 +3,6 @@ package com.hyunwoosing.perturba.domain.job.mapper;
 import com.hyunwoosing.perturba.common.util.TimeUtil;
 import com.hyunwoosing.perturba.domain.asset.entity.Asset;
 import com.hyunwoosing.perturba.domain.job.entity.TransformJob;
-import com.hyunwoosing.perturba.domain.job.web.dto.response.JobListItemResponse;
 import com.hyunwoosing.perturba.domain.job.web.dto.response.JobListResponse;
 import lombok.experimental.UtilityClass;
 import org.springframework.data.domain.Page;
@@ -13,9 +12,9 @@ import java.util.stream.Collectors;
 @UtilityClass
 public class JobListMapper {
 
-    public static JobListItemResponse toItem(TransformJob job) {
+    public static JobListResponse.JobListItemResponse toItem(TransformJob job) {
         Asset input = job.getInputAsset();
-        return JobListItemResponse.builder()
+        return JobListResponse.JobListItemResponse.builder()
                 .jobId(job.getId())
                 .publicId(job.getPublicId())
                 .status(job.getStatus())

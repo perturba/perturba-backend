@@ -18,6 +18,8 @@ import com.hyunwoosing.perturba.domain.job.repository.JobRepository;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.CreateJobRequest;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.FeedbackRequest;
 import com.hyunwoosing.perturba.domain.job.web.dto.response.*;
+import com.hyunwoosing.perturba.domain.job.web.dto.response.JobResultResponse;
+import com.hyunwoosing.perturba.domain.job.web.dto.response.JobStatusResponse;
 import com.hyunwoosing.perturba.domain.user.entity.User;
 import com.hyunwoosing.perturba.domain.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -81,7 +83,7 @@ public class JobService {
                 .idempotencyKey((idemKey != null && !idemKey.isBlank()) ? idemKey : null)
                 .build();
 
-        //TODO: 외부 AI 서버 호출(Flask/Django)
+        //TODO: 외부 AI 서버 호출(Flask/Django) 여기에서 반드시 inputAsset과 jobId를 같이 넘겨줘야한다. userId, GuestSession은 선택
         try {
             job = jobRepository.save(job);
         } catch (DataIntegrityViolationException e) {
@@ -113,16 +115,13 @@ public class JobService {
 
 
     @Transactional
-    public FeedbackResponse saveFeedback(String publicId, FeedbackRequest req, Long userId, Long guestId) {
+    public void saveFeedback(String publicId, FeedbackRequest req, Long userId, Long guestId) {
         TransformJob job = getByPublicId(publicId);
         User user = resolveUser(userId);
         GuestSession guest = resolveGuest(guestId);
 
         JobFeedback jobFeedback = JobMapper.toJobFeedback(job, req, user, guest);
         jobFeedbackRepository.save(jobFeedback);
-        return FeedbackResponse.builder()
-                .accepted(true)
-                .build();
     }
 
 
