@@ -40,4 +40,18 @@ public class AssetMapper {
                 .status(AssetStatus.UPLOADING)
                 .build();
     }
+
+    public static CompleteUploadResponse assetToCompleteUploadResponse(Asset asset, String viewUrl){
+        return CompleteUploadResponse.builder()
+                .assetId(asset.getId())
+                .kind(asset.getKind())
+                .objectKey(asset.getObjectKey())
+                .url(viewUrl)
+                .mimeType(asset.getMimeType())
+                .sizeBytes(asset.getSizeBytes())
+                .width(asset.getWidth())
+                .height(asset.getHeight())
+                .sha256Hex(asset.getSha256Hex())
+                .build();
+    }
 }

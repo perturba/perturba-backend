@@ -8,6 +8,7 @@ import java.util.Map;
 
 @Builder
 public record UploadUrlResponse(
+        Long assetId,
         String method,
         String uploadUrl,
         Map<String, List<String>> headers,

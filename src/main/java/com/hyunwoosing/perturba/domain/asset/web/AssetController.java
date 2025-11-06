@@ -36,8 +36,6 @@ public class AssetController {
     public ApiResponse<CompleteUploadResponse> complete(@AuthenticationPrincipal AuthPrincipal auth,
                                                         @Valid @RequestBody CompleteUploadRequest req) {
         Long userId = (auth.userId() != null) ? auth.userId() : null;
-
-        CompleteUploadResponse res = assetService.completeUpload(req, userId);
-        return ApiResponseFactory.success(res);
+        return ApiResponseFactory.success(assetService.completeUpload(req, userId));
     }
 }

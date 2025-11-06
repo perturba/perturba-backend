@@ -5,6 +5,8 @@ import com.hyunwoosing.perturba.common.util.S3ObjectKeyUtil;
 import com.hyunwoosing.perturba.domain.asset.entity.Asset;
 import com.hyunwoosing.perturba.domain.asset.entity.enums.AssetKind;
 import com.hyunwoosing.perturba.domain.asset.entity.enums.AssetStatus;
+import com.hyunwoosing.perturba.domain.asset.exception.AssetErrorCode;
+import com.hyunwoosing.perturba.domain.asset.exception.AssetException;
 import com.hyunwoosing.perturba.domain.asset.mapper.AssetMapper;
 import com.hyunwoosing.perturba.domain.asset.repository.AssetRepository;
 import com.hyunwoosing.perturba.domain.asset.web.dto.request.CompleteUploadRequest;
@@ -49,13 +51,14 @@ public class AssetService {
                         .uploadUrl(null)
                         .headers(Map.of())
                         .objectKey(duplicate.get().getObjectKey())
+                        .assetId(duplicate.get().getId())
                         .expiresInSec(0)
                         .build();
             }
         }
         //Asset 생성
         Asset newAsset = AssetMapper.requestToAsset(request, owner, objectKey);
-        assetRepository.findByObjectKey(objectKey).orElseGet(() -> assetRepository.save(newAsset));
+        Asset savedAsset = assetRepository.findByObjectKey(objectKey).orElseGet(() -> assetRepository.save(newAsset));
 
         //presign 생성
         PresignedPutObjectRequest signed = s3PresignService.presignPut(objectKey, request.mimeType());
@@ -69,12 +72,31 @@ public class AssetService {
                 .headers(signed.signedHeaders())
                 .objectKey(objectKey)
                 .expiresInSec(expiresInSec)
+                .assetId(savedAsset.getId())
                 .build();
     }
 
 
 
+    @Transactional
+    public CompleteUploadResponse completeUpload(CompleteUploadRequest request, @Nullable Long userId) {
+        String objectKey = request.objectKey();
 
+        //저장되어있는 Asset 조회
+        Asset asset = assetRepository.findByObjectKey(objectKey).orElseThrow(() ->
+                new AssetException(AssetErrorCode.UNKNOWN_OBJECT_KEY, "알 수 없는 ObjectKey 입니다."));
 
-    //private
+        //권한체크
+        if(userId != null && asset.getOwner() != null && !asset.getOwner().getId().equals(userId)){
+            throw new AssetException(AssetErrorCode.NOT_YOUR_ASSET, "해당 이미지 접근 권한이 없습니다.");
+        }
+
+        if (asset.getStatus() != AssetStatus.READY) {
+            asset.setStatus(AssetStatus.READY);
+        }
+
+        String viewUrl = s3PresignService.presignGet(objectKey);
+        return AssetMapper.assetToCompleteUploadResponse(asset, viewUrl);
+    }
+
 }
