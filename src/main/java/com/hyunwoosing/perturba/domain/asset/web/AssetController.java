@@ -8,7 +8,6 @@ import com.hyunwoosing.perturba.domain.asset.web.dto.request.CompleteUploadReque
 import com.hyunwoosing.perturba.domain.asset.web.dto.response.CompleteUploadResponse;
 import com.hyunwoosing.perturba.domain.asset.web.dto.request.UploadUrlRequest;
 import com.hyunwoosing.perturba.domain.asset.web.dto.response.UploadUrlResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,8 +25,7 @@ public class AssetController {
 
     @PostMapping("/upload-url")
     public ApiResponse<UploadUrlResponse> issueUploadUrl(@AuthenticationPrincipal AuthPrincipal auth,
-                                                         @Valid @RequestBody UploadUrlRequest req,
-                                                         HttpServletRequest httpRequest) {
+                                                         @Valid @RequestBody UploadUrlRequest req) {
         Long userId = (auth.userId() != null) ? auth.userId() : null;
 
         UploadUrlResponse res = assetService.issueUploadUrl(req, userId);
@@ -36,8 +34,7 @@ public class AssetController {
 
     @PostMapping("/complete")
     public ApiResponse<CompleteUploadResponse> complete(@AuthenticationPrincipal AuthPrincipal auth,
-                                                        @Valid @RequestBody CompleteUploadRequest req,
-                                                        HttpServletRequest httpRequest) {
+                                                        @Valid @RequestBody CompleteUploadRequest req) {
         Long userId = (auth.userId() != null) ? auth.userId() : null;
 
         CompleteUploadResponse res = assetService.completeUpload(req, userId);

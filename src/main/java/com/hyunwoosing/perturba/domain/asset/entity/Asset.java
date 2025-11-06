@@ -2,6 +2,7 @@ package com.hyunwoosing.perturba.domain.asset.entity;
 
 import com.hyunwoosing.perturba.common.entity.BaseEntity;
 import com.hyunwoosing.perturba.domain.asset.entity.enums.AssetKind;
+import com.hyunwoosing.perturba.domain.asset.entity.enums.AssetStatus;
 import com.hyunwoosing.perturba.domain.job.entity.TransformJob;
 import com.hyunwoosing.perturba.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -52,6 +53,10 @@ public class Asset extends BaseEntity {
     @Column(name = "phash_hex", length = 16)
     private String phashHex;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
+    @Setter
+    private AssetStatus status = AssetStatus.UPLOADING;
 
     // equals, hashCode: id 기반
     @Override
