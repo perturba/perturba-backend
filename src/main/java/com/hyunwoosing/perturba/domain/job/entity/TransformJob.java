@@ -65,7 +65,7 @@ public class TransformJob extends BaseEntity {
     private String failReason;
 
     // 동기 응답 기록
-    @Column(name = "responded_at", columnDefinition = "datetime(3)")
+    @Column(name = "responded_at")
     private Instant respondedAt;
 
     @Column(name = "response_ms")
@@ -80,10 +80,10 @@ public class TransformJob extends BaseEntity {
     private NotifyVia notifyVia = NotifyVia.NONE;
 
 
-    @Column(name = "started_at", columnDefinition = "datetime(3)")
+    @Column(name = "started_at")
     private Instant startedAt;
 
-    @Column(name = "completed_at", columnDefinition = "datetime(3)")
+    @Column(name = "completed_at")
     private Instant completedAt;
 
     @OneToOne(fetch = FetchType.LAZY)

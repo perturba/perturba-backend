@@ -6,7 +6,7 @@ import com.hyunwoosing.perturba.domain.user.entity.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -43,11 +43,11 @@ public class User extends BaseEntity {
     private boolean isActive = true;
 
     @Column(name = "last_login_at")
-    private LocalDateTime lastLoginAt;
+    private Instant lastLoginAt;
 
 
     // business logic methods
-    public void markLogin(LocalDateTime when) {
+    public void markLogin(Instant when) {
         this.lastLoginAt = when;
     }
 

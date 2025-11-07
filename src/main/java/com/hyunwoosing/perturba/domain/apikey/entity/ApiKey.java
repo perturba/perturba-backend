@@ -6,6 +6,7 @@ import com.hyunwoosing.perturba.domain.apikey.entity.enums.ApiKeyStatus;
 import com.hyunwoosing.perturba.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Check;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -18,6 +19,7 @@ import java.time.Instant;
 @ToString(exclude = "keyHashHex")
 @Table(name = "api_keys")
 @Entity
+@Check(constraints = "octet_length(token_hash) = 32")
 public class ApiKey extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,7 +39,8 @@ public class ApiKey extends BaseEntity {
     @Column(name = "key_hash", nullable = false, unique = true)
     private String keyHashHex;
 
-    @Column(name = "scopes", columnDefinition = "json")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "scopes")
     private String scopesJson;
 
     @Column(name = "rate_per_min")
@@ -51,10 +54,10 @@ public class ApiKey extends BaseEntity {
     @Builder.Default
     private ApiKeyStatus status = ApiKeyStatus.ACTIVE;
 
-    @Column(name = "last_used_at", columnDefinition = "timestamp")
+    @Column(name = "last_used_at")
     private Instant lastUsedAt;
 
-    @Column(name = "expires_at", columnDefinition = "timestamp")
+    @Column(name = "expires_at")
     private Instant expiresAt;
 
 

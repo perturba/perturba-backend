@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -27,13 +28,13 @@ public class AuthService {
     private final AuthProps authProps;
 
     public User upsertFromOAuthClaims(Map<String, Object> claims) {
-        OAuthProfile p = UserOAuthMapper.toProfile(claims);
-        return userRepository.findByEmail(p.email())
-                .map(u -> {
-                    UserOAuthMapper.applyOAuthUpdate(u, p, LocalDateTime.now());
-                    return userRepository.save(u);
+        OAuthProfile profile = UserOAuthMapper.toProfile(claims);
+        return userRepository.findByEmail(profile.email())
+                .map(user -> {
+                    UserOAuthMapper.applyOAuthUpdate(user, profile, Instant.now());
+                    return userRepository.save(user);
                 })
-                .orElseGet(() -> userRepository.save(UserOAuthMapper.toNewGoogleUser(p)));
+                .orElseGet(() -> userRepository.save(UserOAuthMapper.toNewGoogleUser(profile)));
     }
 
     public String issueAccess(User user) {

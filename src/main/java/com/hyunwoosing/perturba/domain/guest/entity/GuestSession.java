@@ -5,6 +5,9 @@ import com.hyunwoosing.perturba.common.util.BytesToHexConverter;
 import com.hyunwoosing.perturba.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Check;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 
@@ -14,6 +17,7 @@ import java.time.Instant;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "guest_sessions")
 @Entity
+@Check(constraints = "octet_length(token_hash) = 32")
 public class GuestSession extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,10 +28,11 @@ public class GuestSession extends BaseEntity {
     private String publicToken;
 
     @Convert(converter = BytesToHexConverter.class)
-    @Column(name = "token_hash", columnDefinition = "binary(32)", nullable = false)
+    @JdbcTypeCode(SqlTypes.VARBINARY)
+    @Column(name = "token_hash", nullable = false, unique = true)
     private String tokenHashHex;
 
-    @Column(name = "expires_at", columnDefinition = "timestamp", nullable = false)
+    @Column(name = "expires_at", nullable = false)
     private Instant expiresAt;
 
     @ManyToOne(fetch=FetchType.LAZY)

@@ -5,6 +5,7 @@ import com.hyunwoosing.perturba.domain.user.entity.enums.AuthProvider;
 import com.hyunwoosing.perturba.domain.user.entity.enums.UserRole;
 import lombok.experimental.UtilityClass;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public class UserOAuthMapper {
                 .build();
     }
 
-    public void applyOAuthUpdate(User user, OAuthProfile p, LocalDateTime when) {
+    public void applyOAuthUpdate(User user, OAuthProfile p, Instant when) {
         if (p.name() != null)
             user.changeProfile(p.name(), p.picture());
         else

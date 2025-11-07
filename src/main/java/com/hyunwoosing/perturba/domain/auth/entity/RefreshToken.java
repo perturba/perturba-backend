@@ -5,6 +5,7 @@ import com.hyunwoosing.perturba.common.util.BytesToHexConverter;
 import com.hyunwoosing.perturba.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Check;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -17,6 +18,7 @@ import java.time.Instant;
 @ToString(exclude = "tokenHashHex")
 @Table(name = "refresh_tokens")
 @Entity
+@Check(constraints = "octet_length(token_hash) = 32")
 public class RefreshToken extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,13 +33,13 @@ public class RefreshToken extends BaseEntity {
     @Column(name = "token_hash", nullable = false, unique = true)
     private String tokenHashHex;
 
-    @Column(name = "expires_at", columnDefinition = "timestamp")
+    @Column(name = "expires_at")
     private Instant expiresAt;
 
     @Column(name = "rotated_from", length = 16)
     private String rotatedFrom;
 
-    @Column(name = "revoked_at", columnDefinition = "timestamp", nullable = true)
+    @Column(name = "revoked_at")
     private Instant revokedAt;
 
     @Column(name = "client_ip", length = 45)
