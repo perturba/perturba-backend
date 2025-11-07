@@ -24,7 +24,7 @@ spring:
 
   data:
     mongodb:
-      uri: ${SPRING_DATA_MONGODB_URI:}
+      uri: ${SPRING_DATA_MONGODB_URI:#{null}}
 
   security:
     oauth2:
