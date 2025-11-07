@@ -22,10 +22,6 @@ spring:
         show_sql: ${HIBERNATE_SHOW_SQL:false}
     open-in-view: false
 
-  data:
-    mongodb:
-      uri: ${SPRING_DATA_MONGODB_URI:#{null}}
-
   security:
     oauth2:
       client:
