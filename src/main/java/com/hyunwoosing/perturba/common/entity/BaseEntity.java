@@ -18,10 +18,10 @@ import java.time.Instant;
 public class BaseEntity {
 
     @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "datetime(3)")
+    @Column(name = "created_at", nullable = false, updatable = false)
     protected Instant createdAt;
 
     @LastModifiedDate
-    @Column(name = "updated_at", nullable = false, columnDefinition = "datetime(3)")
+    @Column(name = "updated_at", nullable = false)
     protected Instant updatedAt;
 }

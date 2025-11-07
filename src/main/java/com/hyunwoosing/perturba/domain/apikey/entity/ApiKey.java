@@ -6,6 +6,8 @@ import com.hyunwoosing.perturba.domain.apikey.entity.enums.ApiKeyStatus;
 import com.hyunwoosing.perturba.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 
@@ -31,7 +33,8 @@ public class ApiKey extends BaseEntity {
 
     //key_hash binary(32)
     @Convert(converter = BytesToHexConverter.class)
-    @Column(name = "key_hash", columnDefinition = "binary(32)", nullable = false)
+    @JdbcTypeCode(SqlTypes.VARBINARY)
+    @Column(name = "key_hash", nullable = false, unique = true)
     private String keyHashHex;
 
     @Column(name = "scopes", columnDefinition = "json")

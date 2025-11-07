@@ -5,6 +5,8 @@ import com.hyunwoosing.perturba.common.util.BytesToHexConverter;
 import com.hyunwoosing.perturba.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 
@@ -25,7 +27,8 @@ public class RefreshToken extends BaseEntity {
     private User user;
 
     @Convert(converter = BytesToHexConverter.class)
-    @Column(name = "token_hash", columnDefinition = "binary(32)", nullable = false, unique = true)
+    @JdbcTypeCode(SqlTypes.VARBINARY)
+    @Column(name = "token_hash", nullable = false, unique = true)
     private String tokenHashHex;
 
     @Column(name = "expires_at", columnDefinition = "timestamp")

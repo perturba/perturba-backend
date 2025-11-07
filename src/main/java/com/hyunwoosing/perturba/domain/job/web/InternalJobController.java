@@ -5,9 +5,7 @@ import com.hyunwoosing.perturba.common.api.response.ApiResponse;
 import com.hyunwoosing.perturba.domain.job.service.internal.InternalJobService;
 import com.hyunwoosing.perturba.domain.job.service.internal.InternalJobStatusService;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.internal.CompleteResultRequest;
-import com.hyunwoosing.perturba.domain.job.web.dto.request.internal.JobCompleteRequest;
 import com.hyunwoosing.perturba.domain.job.web.dto.request.internal.JobFailRequest;
-import com.hyunwoosing.perturba.domain.job.web.dto.request.internal.ResultUploadUrlRequest;
 import com.hyunwoosing.perturba.domain.job.web.dto.response.internal.ResultUploadUrlResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +29,7 @@ public class InternalJobController {
     @PostMapping("/{jobId}/complete")
     public ApiResponse<Void> complete(@PathVariable Long jobId,
                                       @Valid @RequestBody CompleteResultRequest req) {
-        internalJobStatusService.markComplete(jobId, req);
+        internalJobStatusService.markCompleteById(jobId, req);
         return ApiResponseFactory.success(null);
     }
 
