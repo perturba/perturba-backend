@@ -17,4 +17,6 @@ public interface ApiKeyRepository extends JpaRepository<ApiKey, Long> {
 
     void deleteByOwner_Id(Long ownerId);
     Optional<ApiKey> findFirstByOwner_IdAndStatus(Long ownerId, ApiKeyStatus status);
+    Optional<ApiKey> findByKeyHashHexAndStatus(String keyHashHex, ApiKeyStatus status);
+
 }
