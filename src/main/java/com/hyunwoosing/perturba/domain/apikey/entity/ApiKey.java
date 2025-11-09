@@ -19,7 +19,7 @@ import java.time.Instant;
 @ToString(exclude = "keyHashHex")
 @Table(name = "api_keys")
 @Entity
-@Check(constraints = "octet_length(token_hash) = 32")
+@Check(constraints = "char_length(key_hash) = 64")
 public class ApiKey extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,10 +33,7 @@ public class ApiKey extends BaseEntity {
     @Column(name = "label", length = 100)
     private String label;
 
-    //key_hash binary(32)
-    @Convert(converter = BytesToHexConverter.class)
-    @JdbcTypeCode(SqlTypes.VARBINARY)
-    @Column(name = "key_hash", nullable = false, unique = true)
+    @Column(name = "key_hash", length = 64, nullable = false, unique = true)
     private String keyHashHex;
 
     @JdbcTypeCode(SqlTypes.JSON)
