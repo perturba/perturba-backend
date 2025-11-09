@@ -19,7 +19,6 @@ import java.time.Instant;
 @ToString(exclude = "keyHashHex")
 @Table(name = "api_keys")
 @Entity
-@Check(constraints = "char_length(key_hash) = 64")
 public class ApiKey extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,7 +32,10 @@ public class ApiKey extends BaseEntity {
     @Column(name = "label", length = 100)
     private String label;
 
+    @Check(constraints = "octet_length(key_hash) = 32")
     @Column(name = "key_hash", length = 64, nullable = false, unique = true)
+    @JdbcTypeCode(SqlTypes.VARBINARY)
+    @Convert(converter = BytesToHexConverter.class)
     private String keyHashHex;
 
     @JdbcTypeCode(SqlTypes.JSON)
@@ -68,6 +70,7 @@ public class ApiKey extends BaseEntity {
     public boolean isExpired(Instant now) {
         return expiresAt != null && now != null && now.isAfter(expiresAt);
     }
+
 
     // equals, hashCode: id 기반
     @Override

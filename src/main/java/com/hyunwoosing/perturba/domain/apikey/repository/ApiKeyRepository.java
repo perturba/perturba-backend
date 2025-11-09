@@ -8,12 +8,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ApiKeyRepository extends JpaRepository<ApiKey, Long> {
-    Optional<ApiKey> findByKeyHashHexAndStatus(String keyHashHex, ApiKeyStatus status);
+    List<ApiKey> findByOwner_Id(Long ownerId);
     List<ApiKey> findByOwner_IdAndStatus(Long ownerId, ApiKeyStatus status);
 
-    default void revokeAllByOwnerId(Long ownerId) {
-        List<ApiKey> keys = findByOwner_IdAndStatus(ownerId, ApiKeyStatus.ACTIVE);
-        keys.forEach(ApiKey::revoke);
-        saveAll(keys);
+    default List<ApiKey> findActiveByOwnerId(Long ownerId) {
+        return findByOwner_IdAndStatus(ownerId, ApiKeyStatus.ACTIVE);
     }
+
+    void deleteByOwner_Id(Long ownerId);
+    Optional<ApiKey> findFirstByOwner_IdAndStatus(Long ownerId, ApiKeyStatus status);
 }
