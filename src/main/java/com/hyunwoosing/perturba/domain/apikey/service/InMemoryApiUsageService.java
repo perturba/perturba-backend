@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
-public class ApiUsageServiceImpl implements ApiUsageService {
+public class InMemoryApiUsageService implements ApiUsageService {
 
     private final Map<String, AtomicInteger> perMinute = new ConcurrentHashMap<>();
     private final Map<String, AtomicInteger> perDay = new ConcurrentHashMap<>();
