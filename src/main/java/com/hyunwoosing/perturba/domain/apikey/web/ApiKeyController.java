@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-
 @RestController
 @RequestMapping("/v1/apikeys")
 @RequiredArgsConstructor
@@ -32,12 +31,10 @@ public class ApiKeyController {
         return ApiResponseFactory.success(apiKeyService.getMyKeyMeta(userId));
     }
 
-
     @DeleteMapping("/{id}")
     public ApiResponse<Void> revoke(@AuthenticationPrincipal AuthPrincipal principal,
                                     @PathVariable Long id) {
-        Long userId = principal.userId();
-        apiKeyService.revokeMyKey(userId);
+        apiKeyService.revokeMyKey(principal.userId(), id);
         return ApiResponseFactory.success(null);
     }
 }

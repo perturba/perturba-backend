@@ -1,14 +1,10 @@
 package com.hyunwoosing.perturba.domain.apikey.entity;
 
 import com.hyunwoosing.perturba.common.entity.BaseEntity;
-import com.hyunwoosing.perturba.common.util.BytesToHexConverter;
 import com.hyunwoosing.perturba.domain.apikey.entity.enums.ApiKeyStatus;
 import com.hyunwoosing.perturba.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Check;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 
@@ -17,9 +13,15 @@ import java.time.Instant;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(exclude = "keyHashHex")
-@Table(name = "api_keys")
+@Table(name = "api_keys",
+        indexes = {
+                @Index(name = "idx_api_keys_keyhash", columnList = "key_hash"),
+                @Index(name = "idx_api_keys_owner", columnList = "user_id"),
+                @Index(name = "idx_api_keys_keyhash_status", columnList = "key_hash,status")
+        })
 @Entity
 public class ApiKey extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "api_key_id")
@@ -32,14 +34,11 @@ public class ApiKey extends BaseEntity {
     @Column(name = "label", length = 100)
     private String label;
 
-    @Check(constraints = "octet_length(key_hash) = 32")
+    //HEX 문자열(64)로 저장
     @Column(name = "key_hash", length = 64, nullable = false, unique = true)
-    @JdbcTypeCode(SqlTypes.VARBINARY)
-    @Convert(converter = BytesToHexConverter.class)
     private String keyHashHex;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "scopes")
+    @Column(name = "scopes", columnDefinition = "jsonb") //PG
     private String scopesJson;
 
     @Column(name = "rate_per_min")
@@ -59,27 +58,14 @@ public class ApiKey extends BaseEntity {
     @Column(name = "expires_at")
     private Instant expiresAt;
 
+    //Business methods
+    public void markUsed(Instant when) { this.lastUsedAt = when; }
+    public void revoke() { this.status = ApiKeyStatus.REVOKED; }
+    public boolean isExpired(Instant now) { return expiresAt != null && now != null && now.isAfter(expiresAt); }
 
-    // business logic methods
-    public void markUsed(Instant when) {
-        this.lastUsedAt = when;
-    }
-    public void revoke() {
-        this.status = ApiKeyStatus.REVOKED;
-    }
-    public boolean isExpired(Instant now) {
-        return expiresAt != null && now != null && now.isAfter(expiresAt);
-    }
-
-
-    // equals, hashCode: id 기반
+    //equals/hashCode
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ApiKey other = (ApiKey) o;
-        return id != null && id.equals(other.id);
-    }
+    public boolean equals(Object o) { if (this == o) return true; if (!(o instanceof ApiKey other)) return false; return id != null && id.equals(other.id); }
     @Override
-    public int hashCode() {return getClass().hashCode();}
+    public int hashCode() { return getClass().hashCode(); }
 }

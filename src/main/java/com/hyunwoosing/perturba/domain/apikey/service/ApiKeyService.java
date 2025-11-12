@@ -2,6 +2,8 @@ package com.hyunwoosing.perturba.domain.apikey.service;
 
 import com.hyunwoosing.perturba.domain.apikey.entity.ApiKey;
 import com.hyunwoosing.perturba.domain.apikey.entity.enums.ApiKeyStatus;
+import com.hyunwoosing.perturba.domain.apikey.exception.ApiKeyErrorCode;
+import com.hyunwoosing.perturba.domain.apikey.exception.ApiKeyException;
 import com.hyunwoosing.perturba.domain.apikey.mapper.ApiKeyMapper;
 import com.hyunwoosing.perturba.domain.apikey.repository.ApiKeyRepository;
 import com.hyunwoosing.perturba.domain.apikey.web.dto.request.IssueApiKeyRequest;
@@ -36,8 +38,12 @@ public class ApiKeyService {
     }
 
     @Transactional
-    public void revokeMyKey(Long userId) {
-        apiKeyRepository.deleteByOwner_Id(userId); //정책상 하나이므로 전부삭제.
+    public void revokeMyKey(Long userId, Long apiKeyId) {
+        ApiKey key = apiKeyRepository.findById(apiKeyId).orElseThrow(()-> new ApiKeyException(ApiKeyErrorCode.API_KEY_NOT_FOUND, "API 키를 찾을 수 없습니다."));
+        if(!key.getOwner().getId().equals(userId)){
+            throw new ApiKeyException(ApiKeyErrorCode.NOT_YOUR, "본인의 API 키가 아닙니다.");
+        }
+        key.revoke();
     }
 
     @Transactional
