@@ -14,13 +14,16 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -30,8 +33,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
     private final ApiKeyRepository apiKeyRepository;
     private final ApiUsageService usageService;
 
-    private final Predicate<String> pathMatcher = p -> p.startsWith("/v1/external/");
-
+    private static final AntPathMatcher PATHS = new AntPathMatcher();
     private static final String HEADER = "X-Perturba-External-API-Key";
     private static final String PREFIX = "pk_live_";
 
@@ -40,22 +42,28 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain chain) throws IOException, ServletException {
 
-        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+        if("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             chain.doFilter(request, response);
             return;
         }
+
         String path = request.getRequestURI();
+        boolean needsKey = PATHS.match("/v1/external/**", path);
 
-        boolean needsKey = pathMatcher.test(path);
-        String apiKeyPlain = request.getHeader(HEADER);
-
-        //API키 필요없으면 패스
+        //API 키가 필요 없으면 패스
         if (!needsKey) {
             chain.doFilter(request, response);
             return;
         }
 
+        //이미 인증된 경우면 패스
+        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         //헤더 체크
+        String apiKeyPlain = request.getHeader(HEADER);
         if (!StringUtils.hasText(apiKeyPlain)) {
             reject(response, HttpStatus.UNAUTHORIZED, "missing_api_key", "Provide API key in header " + HEADER);
             return;
@@ -95,10 +103,15 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
             }
         }
 
-        // 인증 컨텍스트 주입 (owner 기준으로 내부 사용자 권한 맥락 부여)
+        key.markUsed(now);
+        apiKeyRepository.save(key);
+
+        //인증 컨텍스트 주입 (owner 기준으로 내부 사용자 권한 부여)
         Long ownerId = Objects.requireNonNull(key.getOwner()).getId();
-        AuthPrincipal principal = new AuthPrincipal(ownerId, null, null, AuthorityUtils.NO_AUTHORITIES);
-        var auth = new UsernamePasswordAuthenticationToken(principal, null, principal.authorities());
+        List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_API");
+        AuthPrincipal principal = new AuthPrincipal(ownerId, null, null, authorities);
+
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(principal, null, principal.authorities());
         SecurityContextHolder.getContext().setAuthentication(auth);
 
         chain.doFilter(request, response);

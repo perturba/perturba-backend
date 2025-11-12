@@ -21,7 +21,7 @@ public class ApiKeyController {
 
     @PostMapping
     public ApiResponse<IssueApiKeyResponse> issueOrRotate(@AuthenticationPrincipal AuthPrincipal principal,
-                                                  @RequestBody IssueApiKeyRequest request) {
+                                                          @RequestBody IssueApiKeyRequest request) {
         Long userId = principal.userId();
         return ApiResponseFactory.success(apiKeyService.issueOrRotate(userId, request));
     }
