@@ -55,6 +55,7 @@ public class Asset extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
+    @Builder.Default
     @Setter
     private AssetStatus status = AssetStatus.UPLOADING;
 
