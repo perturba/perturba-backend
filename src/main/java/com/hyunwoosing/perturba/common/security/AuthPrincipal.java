@@ -8,6 +8,7 @@ import java.util.Collection;
 public record AuthPrincipal(
         Long userId,
         Long guestId,
+        Long apiKeyId,
         String username,
         Collection<? extends GrantedAuthority> authorities
 ) implements UserDetails {
@@ -22,4 +23,5 @@ public record AuthPrincipal(
 
     public boolean isUser()  { return userId  != null; }
     public boolean isGuest() { return guestId != null; }
+    public boolean isApi()   { return apiKeyId != null; }
 }
