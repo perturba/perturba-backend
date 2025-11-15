@@ -53,6 +53,9 @@ public class Asset extends BaseEntity {
     @Column(name = "phash_hex", length = 16)
     private String phashHex;
 
+    @Column(name = "public_id", nullable=false, unique = true, length = 36)
+    private String publicId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     @Builder.Default
