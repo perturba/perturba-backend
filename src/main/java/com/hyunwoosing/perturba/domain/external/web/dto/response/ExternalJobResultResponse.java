@@ -1,7 +1,9 @@
 package com.hyunwoosing.perturba.domain.external.web.dto.response;
 
 import com.hyunwoosing.perturba.domain.job.entity.enums.JobStatus;
+import lombok.Builder;
 
+@Builder
 public record ExternalJobResultResponse(
         JobStatus status,              //PROGRESS / COMPLETED / FAILED
         String failReason,          //FAILED일 때만
