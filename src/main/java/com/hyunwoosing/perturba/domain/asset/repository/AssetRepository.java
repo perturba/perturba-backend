@@ -10,4 +10,6 @@ public interface AssetRepository extends JpaRepository<Asset, Long> {
     Optional<Asset> findBySha256HexAndOwner(String sha256Hex, User owner);
 
     Optional<Asset> findByObjectKey(String objectKey);
+
+    Optional<Asset> findByPublicIdAndOwner_Id(String publicId, Long ownerId);//외부 API 접근용
 }

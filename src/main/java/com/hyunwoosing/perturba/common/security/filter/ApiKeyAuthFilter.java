@@ -109,7 +109,7 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
         //인증 컨텍스트 주입 (owner 기준으로 내부 사용자 권한 부여)
         Long ownerId = Objects.requireNonNull(key.getOwner()).getId();
         List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_API");
-        AuthPrincipal principal = new AuthPrincipal(ownerId, null, null, authorities);
+        AuthPrincipal principal = new AuthPrincipal(ownerId, null, key.getId(),null, authorities);
 
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(principal, null, principal.authorities());
         SecurityContextHolder.getContext().setAuthentication(auth);

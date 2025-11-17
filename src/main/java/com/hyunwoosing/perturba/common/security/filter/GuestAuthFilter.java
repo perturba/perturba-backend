@@ -54,7 +54,7 @@ public class GuestAuthFilter extends OncePerRequestFilter {
         Optional<GuestSession> guest = guestSessionRepository.findByPublicToken(token);
         guest.ifPresent(g -> {
             AuthPrincipal principal =
-                    new AuthPrincipal(null, g.getId(), null, AuthorityUtils.NO_AUTHORITIES);
+                    new AuthPrincipal(null, g.getId(), null,null, AuthorityUtils.NO_AUTHORITIES);
             UsernamePasswordAuthenticationToken auth =
                     new UsernamePasswordAuthenticationToken(principal, null, principal.authorities());
             SecurityContextHolder.getContext().setAuthentication(auth);

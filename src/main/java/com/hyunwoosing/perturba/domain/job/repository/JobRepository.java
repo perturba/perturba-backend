@@ -18,4 +18,7 @@ public interface JobRepository extends JpaRepository<TransformJob, Long> {
 
     Page<TransformJob> findByUser_IdOrderByCreatedAtDesc(Long userId, Pageable pageable);
     Page<TransformJob> findByGuest_IdOrderByCreatedAtDesc(Long guestId, Pageable pageable);
+
+
+    Optional<TransformJob> findByPublicIdAndApiKey_Id(String publicId, Long apiKeyId); //외부 API 호출용
 }
