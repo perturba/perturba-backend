@@ -32,6 +32,7 @@ public class GuestSession extends BaseEntity {
     @Column(name = "token_hash", nullable = false, unique = true)
     private String tokenHashHex;
 
+    @Setter
     @Column(name = "expires_at", nullable = false)
     private Instant expiresAt;
 

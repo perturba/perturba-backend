@@ -6,6 +6,5 @@ import java.time.Instant;
 
 @Builder
 public record GuestSessionMeResponse(
-        String kind,
         Instant expiresAt) {
 }

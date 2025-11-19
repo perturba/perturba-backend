@@ -6,7 +6,9 @@ import org.springframework.http.HttpStatus;
 public enum AuthErrorCode implements ErrorCode {
     INVALID_ID_TOKEN(HttpStatus.UNAUTHORIZED),
     UNAUTHENTICATED(HttpStatus.UNAUTHORIZED),
-    REFRESH_NOT_FOUND(HttpStatus.UNAUTHORIZED);
+    REFRESH_NOT_FOUND(HttpStatus.UNAUTHORIZED),
+    NO_GUEST_SESSION(HttpStatus.UNAUTHORIZED),
+    ;
 
     private final HttpStatus status;
 
