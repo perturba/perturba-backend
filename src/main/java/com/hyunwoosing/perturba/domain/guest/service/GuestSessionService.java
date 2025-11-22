@@ -63,7 +63,7 @@ public class GuestSessionService {
 
     @Transactional(readOnly = true)
     public GuestSessionMeResponse me(Long guestId){
-        GuestSession session = guestSessionRepository.findById(guestId).orElseThrow(()-> new AuthException(AuthErrorCode.NO_GUEST_SESSION, "게스트 정보가 없습니다."))
+        GuestSession session = guestSessionRepository.findById(guestId).orElseThrow(() -> new AuthException(AuthErrorCode.NO_GUEST_SESSION, "게스트 정보가 없습니다."));
         return GuestSessionMeResponse.builder()
                 .expiresAt(session.getExpiresAt())
                 .build();
