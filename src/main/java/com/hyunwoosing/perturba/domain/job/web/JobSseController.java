@@ -20,7 +20,7 @@ public class JobSseController {
 
     @GetMapping(value = "/{publicId}/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @Operation(
-            summary = "작업 상태 SSE"
+            summary = "작업 상태 SSE 구독"
     )
     public SseEmitter events(@PathVariable String publicId) {
         return jobEventService.subscribe(publicId);

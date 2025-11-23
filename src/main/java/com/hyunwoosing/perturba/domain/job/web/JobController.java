@@ -59,7 +59,7 @@ public class JobController {
 
     @GetMapping("/{publicId}/status")
     @Operation(
-            summary = "작업 상태 조회",
+            summary = "작업 상태 조회, 폴링방식 (사용 안함)",
             security = {
                     @SecurityRequirement(name = "access-jwt"),   //or
                     @SecurityRequirement(name = "guest-cookie")

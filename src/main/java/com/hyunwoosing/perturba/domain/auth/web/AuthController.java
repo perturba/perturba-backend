@@ -23,6 +23,12 @@ public class AuthController {
     private final AuthService authService;
 
     @GetMapping("/me")
+    @Operation(
+            summary = "내 정보 조회",
+            security = {
+                    @SecurityRequirement(name = "access-jwt")
+            }
+    )
     public ApiResponse<MeResponse> me(@AuthenticationPrincipal AuthPrincipal principal) {
         Long userId = (principal != null) ? principal.userId() : null;
         return ApiResponseFactory.success(authService.me(userId));

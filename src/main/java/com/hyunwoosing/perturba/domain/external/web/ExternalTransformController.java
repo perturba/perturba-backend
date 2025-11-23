@@ -23,7 +23,7 @@ public class ExternalTransformController {
 
     @PostMapping
     @Operation(
-            summary = "외부 API 변환 작업 생성",
+            summary = "외부 API 변환 작업 생성 (프론트 사용 X)",
             security = {
                     @SecurityRequirement(name = "external-api-key")
             }
@@ -38,7 +38,7 @@ public class ExternalTransformController {
 
     @GetMapping("/{jobPublicId}/result")
     @Operation(
-            summary = "외부 API 변환 작업 결과 조회",
+            summary = "외부 API 변환 작업 결과 조회 (프론트 사용 X)",
             security = {
                     @SecurityRequirement(name = "external-api-key")
             }

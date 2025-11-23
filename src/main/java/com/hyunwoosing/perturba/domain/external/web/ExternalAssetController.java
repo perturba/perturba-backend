@@ -24,7 +24,7 @@ public class ExternalAssetController {
 
     @PostMapping("/upload")
     @Operation(
-            summary = "외부 API 이미지 업로드",
+            summary = "외부 API 이미지 업로드 (프론트 사용 X)",
             security = {
                     @SecurityRequirement(name = "external-api-key")
             }
