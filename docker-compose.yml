@@ -12,8 +12,7 @@ services:
       - ./logs/nginx:/var/log/nginx
       - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
     restart: unless-stopped
 
   backend:
@@ -21,10 +20,4 @@ services:
     container_name: perturba-backend
     env_file:
       - /etc/perturba/perturba.env
-    healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health | jq -e '.status==\"UP\"' >/dev/null"]
-      interval: 15s
-      timeout: 3s
-      retries: 10
-      start_period: 20s
     restart: unless-stopped
