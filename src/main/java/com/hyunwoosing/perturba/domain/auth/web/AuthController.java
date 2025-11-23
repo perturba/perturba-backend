@@ -36,7 +36,7 @@ public class AuthController {
                     @SecurityRequirement(name = "refresh-cookie")
             }
     )
-    public ApiResponse<TokenResponse> refresh(@CookieValue(name = "${auth.refresh.cookie-name}", required = false) String refreshOpaque,
+    public ApiResponse<TokenResponse> refresh(@CookieValue(name = "${perturba.auth.refresh.cookie-name}", required = false) String refreshOpaque,
                                               HttpServletRequest req,
                                               HttpServletResponse res) {
         String clientIp = ClientIpResolver.resolve(req);

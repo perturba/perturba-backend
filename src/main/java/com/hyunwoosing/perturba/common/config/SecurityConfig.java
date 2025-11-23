@@ -38,8 +38,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        var guestAuthFilter = new GuestAuthFilter(guestSessionRepository, authProps);
-        var apiKeyAuthFilter = new ApiKeyAuthFilter(apiKeyRepository, apiUsageService);
+        GuestAuthFilter guestAuthFilter = new GuestAuthFilter(guestSessionRepository, authProps);
+        ApiKeyAuthFilter apiKeyAuthFilter = new ApiKeyAuthFilter(apiKeyRepository, apiUsageService);
 
         http
                 .csrf(AbstractHttpConfigurer::disable)

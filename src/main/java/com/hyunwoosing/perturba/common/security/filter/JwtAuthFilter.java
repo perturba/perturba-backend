@@ -45,10 +45,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(principal, null, principal.authorities());
                     SecurityContextHolder.getContext().setAuthentication(auth);
                 }
-            } catch (SecurityException ignored) {}
+            } catch (Exception ignored) {}
         }
 
         chain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        return path.startsWith("/v3/api-docs") ||
+                path.startsWith("/swagger-ui") ||
+                path.startsWith("/swagger-resources") ||
+                path.equals("/actuator/health");
     }
 
     private static Long parseLongOrNull(String v) {
