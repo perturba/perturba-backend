@@ -59,11 +59,21 @@ public class SecurityConfig {
                 .authorizeHttpRequests(reg -> reg
                         //공개 엔드포인트 todo: String[] 상수화로 변경
                         .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html",
+                                "/swagger-ui/**"
+                        ).permitAll()
+
+                        .requestMatchers(
                                 "/actuator/health",
                                 "/v1/auth/refresh",
                                 "/v1/auth/logout",
                                 "/oauth2/**",
                                 "/login/oauth2/**"
+                        ).permitAll()
+
+                        .requestMatchers(
+                                "/v1/internal/**"
                         ).permitAll()
 
                         //API-Key 전용 외부 엔드포인트: ROLE_API 필요

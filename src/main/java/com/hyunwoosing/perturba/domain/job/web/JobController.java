@@ -25,7 +25,7 @@ public class JobController {
     @GetMapping
     public JobListResponse list(@AuthenticationPrincipal AuthPrincipal auth,
                                 @RequestParam(defaultValue = "0") int page,
-                                @RequestParam(defaultValue = "20") int size) {
+                                @RequestParam(defaultValue = "10") int size) {
         Long userId  = auth != null ? auth.userId()  : null;
         Long guestId = auth != null ? auth.guestId() : null;
         return jobService.listMyJobs(userId, guestId, page, size);
