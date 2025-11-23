@@ -8,6 +8,8 @@ import com.hyunwoosing.perturba.domain.job.web.dto.request.*;
 import com.hyunwoosing.perturba.domain.job.web.dto.response.*;
 import com.hyunwoosing.perturba.domain.job.web.dto.response.JobResultResponse;
 import com.hyunwoosing.perturba.domain.job.web.dto.response.JobStatusResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,15 +25,29 @@ public class JobController {
     private final JobService jobService;
 
     @GetMapping
+    @Operation(
+            summary = "내 변환 작업 목록 조회",
+            security = {
+                    @SecurityRequirement(name = "access-jwt"),   //or
+                    @SecurityRequirement(name = "guest-cookie")
+            }
+    )
     public JobListResponse list(@AuthenticationPrincipal AuthPrincipal auth,
                                 @RequestParam(defaultValue = "0") int page,
-                                @RequestParam(defaultValue = "20") int size) {
+                                @RequestParam(defaultValue = "10") int size) {
         Long userId  = auth != null ? auth.userId()  : null;
         Long guestId = auth != null ? auth.guestId() : null;
         return jobService.listMyJobs(userId, guestId, page, size);
     }
 
     @PostMapping
+    @Operation(
+            summary = "작업 생성",
+            security = {
+                    @SecurityRequirement(name = "access-jwt"),   //or
+                    @SecurityRequirement(name = "guest-cookie")
+            }
+    )
     public ApiResponse<CreateJobResponse> create(@AuthenticationPrincipal AuthPrincipal authPrincipal,
                                                  @Valid @RequestBody CreateJobRequest req,
                                                  @RequestHeader(value = "idempotency-key", required = false) String idemKey) {
@@ -42,16 +58,37 @@ public class JobController {
     }
 
     @GetMapping("/{publicId}/status")
+    @Operation(
+            summary = "작업 상태 조회",
+            security = {
+                    @SecurityRequirement(name = "access-jwt"),   //or
+                    @SecurityRequirement(name = "guest-cookie")
+            }
+    )
     public ApiResponse<JobStatusResponse> status(@PathVariable String publicId) {
         return ApiResponseFactory.success(jobService.getStatus(publicId));
     }
 
     @GetMapping("/{publicId}/result")
+    @Operation(
+            summary = "작업 결과 조회",
+            security = {
+                    @SecurityRequirement(name = "access-jwt"),   //or
+                    @SecurityRequirement(name = "guest-cookie")
+            }
+    )
     public ApiResponse<JobResultResponse> result(@PathVariable String publicId) {
         return ApiResponseFactory.success(jobService.getResult(publicId));
     }
 
     @PostMapping("/{publicId}/feedback")
+    @Operation(
+            summary = "작업 피드백 제출",
+            security = {
+                    @SecurityRequirement(name = "access-jwt"),   //or
+                    @SecurityRequirement(name = "guest-cookie")
+            }
+    )
     public ResponseEntity<ApiResponse<Void>> feedback(@AuthenticationPrincipal AuthPrincipal authPrincipal,
                                                                   @PathVariable String publicId,
                                                                   @Valid @RequestBody FeedbackRequest req) {

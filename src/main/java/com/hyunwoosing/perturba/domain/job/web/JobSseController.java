@@ -1,6 +1,8 @@
 package com.hyunwoosing.perturba.domain.job.web;
 
 import com.hyunwoosing.perturba.domain.job.service.JobEventService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +19,9 @@ public class JobSseController {
     private final JobEventService jobEventService;
 
     @GetMapping(value = "/{publicId}/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @Operation(
+            summary = "작업 상태 SSE"
+    )
     public SseEmitter events(@PathVariable String publicId) {
         return jobEventService.subscribe(publicId);
     }
