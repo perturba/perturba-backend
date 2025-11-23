@@ -8,6 +8,8 @@ import com.hyunwoosing.perturba.domain.asset.web.dto.request.CompleteUploadReque
 import com.hyunwoosing.perturba.domain.asset.web.dto.response.CompleteUploadResponse;
 import com.hyunwoosing.perturba.domain.asset.web.dto.request.UploadUrlRequest;
 import com.hyunwoosing.perturba.domain.asset.web.dto.response.UploadUrlResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,6 +26,13 @@ public class AssetController {
     private final AssetService assetService;
 
     @PostMapping("/upload-url")
+    @Operation(
+            summary = "이미지 업로드 URL 발급",
+            security = {
+                    @SecurityRequirement(name = "access-jwt"),
+                    @SecurityRequirement(name = "guest-cookie")
+            }
+    )
     public ApiResponse<UploadUrlResponse> issueUploadUrl(@AuthenticationPrincipal AuthPrincipal auth,
                                                          @Valid @RequestBody UploadUrlRequest req) {
         Long userId = (auth.userId() != null) ? auth.userId() : null;
@@ -33,6 +42,13 @@ public class AssetController {
     }
 
     @PostMapping("/complete")
+    @Operation(
+            summary = "이미지 업로드 완료 처리",
+            security = {
+                    @SecurityRequirement(name = "access-jwt"),
+                    @SecurityRequirement(name = "guest-cookie")
+            }
+    )
     public ApiResponse<CompleteUploadResponse> complete(@AuthenticationPrincipal AuthPrincipal auth,
                                                         @Valid @RequestBody CompleteUploadRequest req) {
         Long userId = (auth.userId() != null) ? auth.userId() : null;
