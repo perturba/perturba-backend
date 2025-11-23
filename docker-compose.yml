@@ -1,0 +1,30 @@
+version: "3.9"
+name: perturba
+services:
+  reverse-proxy:
+    image: nginx:1.27-alpine
+    container_name: perturba-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./logs/nginx:/var/log/nginx
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  backend:
+    image: ${IMAGE}
+    container_name: perturba-backend
+    env_file:
+      - /etc/perturba/perturba.env
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health | jq -e '.status==\"UP\"' >/dev/null"]
+      interval: 15s
+      timeout: 3s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
