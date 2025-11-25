@@ -14,8 +14,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HexFormat;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -97,8 +101,18 @@ public class GuestSessionService {
 
     private GuestSession createNewSession(Instant expiresAt) {
         String token = UUID.randomUUID().toString().replace("-", "");
+        String hashHex; //Sha-256 해시
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(token.getBytes(StandardCharsets.UTF_8));
+            hashHex = HexFormat.of().formatHex(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA-256 algorithm not found", e);
+        }
+
         return GuestSession.builder()
                 .publicToken(token)
+                .tokenHashHex(hashHex)
                 .expiresAt(expiresAt)
                 .build();
     }
