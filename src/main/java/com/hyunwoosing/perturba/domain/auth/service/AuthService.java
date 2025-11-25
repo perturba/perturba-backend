@@ -13,6 +13,7 @@ import com.hyunwoosing.perturba.domain.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -27,6 +28,7 @@ public class AuthService {
     private final RefreshTokenService refreshTokenService;
     private final AuthProps authProps;
 
+    @Transactional
     public User upsertFromOAuthClaims(Map<String, Object> claims) {
         OAuthProfile profile = UserOAuthMapper.toProfile(claims);
         return userRepository.findByEmail(profile.email())
@@ -41,6 +43,7 @@ public class AuthService {
         return jwtProvider.createAccess(user.getId(), user.getEmail());
     }
 
+    @Transactional(readOnly = true)
     public MeResponse me(Long userId) {
         if (userId == null) {
             throw new AuthException(AuthErrorCode.UNAUTHENTICATED, "No access token");
@@ -50,6 +53,7 @@ public class AuthService {
                 .build();
     }
 
+    @Transactional
     public TokenResponse refresh(String refreshOpaque, String clientIp, HttpServletResponse res) {
         if (refreshOpaque == null || refreshOpaque.isBlank()) {
             throw new AuthException(AuthErrorCode.REFRESH_NOT_FOUND, "No refresh cookie");
