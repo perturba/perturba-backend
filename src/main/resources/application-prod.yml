@@ -68,3 +68,6 @@ perturba:
       cookie-domain: ${COOKIE_DOMAIN:localhost}
       cookie-path: "/"
       ttl-days: 7
+
+  frontend:
+    url: ${PERTURBA_FRONTEND_URL:http://localhost:3000}
