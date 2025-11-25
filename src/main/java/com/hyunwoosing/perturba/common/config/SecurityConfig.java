@@ -75,7 +75,8 @@ public class SecurityConfig {
                                 "/v1/auth/refresh",
                                 "/v1/auth/logout",
                                 "/oauth2/**",
-                                "/login/oauth2/**"
+                                "/login/oauth2/**",
+                                "/v1/guest/session"
                         ).permitAll()
 
                         .requestMatchers(
