@@ -70,4 +70,4 @@ perturba:
       ttl-days: 7
 
   frontend:
-    url: ${PERTURBA_FRONTEND_URL:http://localhost:3000}
+    url: ${PERTURBA_FRONTEND_URL:https://www.woojnagpark.site}
