@@ -115,7 +115,7 @@ public class SecurityConfig {
                 "https://twitter.com",
                 "https://x.com",
                 "http://localhost:3000",
-                "https://woojangpark.site"
+                "https://www.woojangpark.site"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
