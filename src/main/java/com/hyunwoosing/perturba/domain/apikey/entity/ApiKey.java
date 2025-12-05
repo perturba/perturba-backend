@@ -38,7 +38,7 @@ public class ApiKey extends BaseEntity {
     @Column(name = "key_hash", length = 64, nullable = false, unique = true)
     private String keyHashHex;
 
-    @Column(name = "scopes", columnDefinition = "jsonb") //PG
+    @Column(name = "scopes") //PG
     private String scopesJson;
 
     @Column(name = "rate_per_min")
