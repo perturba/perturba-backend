@@ -51,7 +51,7 @@ perturba:
   s3:
     bucket: ${PERTURBA_S3_BUCKET}
     region: ${PERTURBA_S3_REGION:us-west-2}
-    presign-expire-sec: ${PERTURBA_S3_PRESIGN_EXPIRE_SEC:600}
+    presign-expire-sec: ${PERTURBA_S3_PRESIGN_EXPIRE_SEC:1800}
 
   auth:
     jwt:
@@ -60,12 +60,12 @@ perturba:
       access-ttl-sec: 900
     refresh:
       cookie-name: "perturba_refresh"
-      cookie-domain: ${COOKIE_DOMAIN:localhost}
+      cookie-domain: ${COOKIE_DOMAIN}
       cookie-path: "/"
       ttl-days: 30
     guest:
       cookie-name: "perturba_guest"
-      cookie-domain: ${COOKIE_DOMAIN:localhost}
+      cookie-domain: ${COOKIE_DOMAIN}
       cookie-path: "/"
       ttl-days: 7
 
