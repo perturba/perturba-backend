@@ -38,8 +38,8 @@ public class ApiKeyService {
     }
 
     @Transactional
-    public void revokeMyKey(Long userId, Long apiKeyId) {
-        ApiKey key = apiKeyRepository.findById(apiKeyId).orElseThrow(()-> new ApiKeyException(ApiKeyErrorCode.API_KEY_NOT_FOUND, "API 키를 찾을 수 없습니다."));
+    public void revokeMyKey(Long userId) {
+        ApiKey key = apiKeyRepository.findByOwner_Id(userId).orElseThrow(()-> new ApiKeyException(ApiKeyErrorCode.API_KEY_NOT_FOUND, "API 키를 찾을 수 없습니다."));
         if(!key.getOwner().getId().equals(userId)){
             throw new ApiKeyException(ApiKeyErrorCode.NOT_YOUR, "본인의 API 키가 아닙니다.");
         }
@@ -49,7 +49,7 @@ public class ApiKeyService {
     @Transactional
     public ApiKeyMetaResponse getMyKeyMeta(Long userId) {
         Optional<ApiKey> apiKey = apiKeyRepository.findFirstByOwner_IdAndStatus(userId, ApiKeyStatus.ACTIVE)
-                .or(() -> apiKeyRepository.findByOwner_Id(userId).stream().findFirst());
+                .or(() -> apiKeyRepository.findByOwner_Id(userId));
         return apiKey.map(ApiKeyMapper::toMeta).orElse(null);
     }
 }

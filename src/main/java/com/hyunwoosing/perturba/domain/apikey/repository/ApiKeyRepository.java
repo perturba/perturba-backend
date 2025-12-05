@@ -10,6 +10,6 @@ import java.util.Optional;
 public interface ApiKeyRepository extends JpaRepository<ApiKey, Long> {
     Optional<ApiKey> findByKeyHashHexAndStatus(String keyHashHex, ApiKeyStatus status);
     Optional<ApiKey> findFirstByOwner_IdAndStatus(Long ownerId, ApiKeyStatus status);
-    List<ApiKey> findByOwner_Id(Long ownerId);
+    Optional<ApiKey> findByOwner_Id(Long ownerId);
     void deleteByOwner_Id(Long ownerId);
 }

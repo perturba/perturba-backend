@@ -45,16 +45,15 @@ public class ApiKeyController {
         return ApiResponseFactory.success(apiKeyService.getMyKeyMeta(userId));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("")
     @Operation(
             summary = "내 외부 API 키 폐기",
             security = {
                     @SecurityRequirement(name = "access-jwt")
             }
     )
-    public ApiResponse<Void> revoke(@AuthenticationPrincipal AuthPrincipal principal,
-                                    @PathVariable Long id) {
-        apiKeyService.revokeMyKey(principal.userId(), id);
+    public ApiResponse<Void> revoke(@AuthenticationPrincipal AuthPrincipal principal) {
+        apiKeyService.revokeMyKey(principal.userId());
         return ApiResponseFactory.success(null);
     }
 }
