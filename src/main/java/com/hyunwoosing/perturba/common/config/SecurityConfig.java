@@ -80,7 +80,8 @@ public class SecurityConfig {
                         ).permitAll()
 
                         .requestMatchers(
-                                "/v1/internal/**"
+                                "/v1/internal/**",
+                                "/v1/jobs/**/events"
                         ).permitAll()
 
                         //API-Key 전용 외부 엔드포인트: ROLE_API 필요
