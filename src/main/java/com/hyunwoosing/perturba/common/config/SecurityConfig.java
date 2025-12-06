@@ -14,15 +14,18 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import java.util.List;
 
@@ -41,8 +44,9 @@ public class SecurityConfig {
     private final ApiKeyRepository apiKeyRepository;
     private final ApiUsageService apiUsageService;
 
+
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
         GuestAuthFilter guestAuthFilter = new GuestAuthFilter(guestSessionRepository, authProps);
         ApiKeyAuthFilter apiKeyAuthFilter = new ApiKeyAuthFilter(apiKeyRepository, apiUsageService);
 
@@ -78,7 +82,7 @@ public class SecurityConfig {
                                 "/login/oauth2/**",
                                 "/v1/guest/session"
                         ).permitAll()
-
+                        .requestMatchers(HttpMethod.GET, "/v1/jobs/*/events").permitAll()
                         .requestMatchers(
                                 "/v1/internal/**"
                         ).permitAll()
