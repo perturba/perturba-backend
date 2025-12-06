@@ -48,7 +48,7 @@ public class Asset extends BaseEntity {
     @Column(name = "height")
     private Integer height;
 
-    @Column(name = "sha256_hex", length = 64, nullable = false)
+    @Column(name = "sha256_hex", length = 64, nullable = true)
     private String sha256Hex;
 
     @Column(name = "phash_hex", length = 16)

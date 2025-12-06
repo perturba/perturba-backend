@@ -14,6 +14,7 @@ import com.hyunwoosing.perturba.domain.job.web.dto.response.internal.ResultUploa
 import com.hyunwoosing.perturba.domain.user.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 
@@ -61,18 +62,25 @@ public class InternalJobService {
 
     //private
     private void createIfAbsent(TransformJob job, User owner, AssetKind kind, String key) {
-        assetRepository.findByObjectKey(key).orElseGet(() ->
-                assetRepository.save(Asset.builder()
+        assetRepository.findByObjectKey(key).orElseGet(() -> {
+            String ownerPart = (owner == null) ? "guest" : String.valueOf(owner.getId());
+            String source = ownerPart + "|" + job.getId() + "|" + kind.name() + "|" + key;
+
+            // 실제 이미지 sha는 아니지만, owner+job+kind+key 기준으로 유일한 64자리 hex 생성
+            String fakeSha256 = DigestUtils.sha256Hex(source);
+
+            return assetRepository.save(Asset.builder()
                         .job(job)
                         .owner(owner)              // null이면 guest 경로
                         .kind(kind)
                         .objectKey(key)
                         .mimeType("image/jpeg")
                         .status(AssetStatus.UPLOADING)
-                        .sha256Hex("0".repeat(64))
+                        .sha256Hex(fakeSha256)
                         .build()
-                )
-        );
+            );
+        });
+
     }
 
     private ResultUploadUrlResponse.Item presignPut(String key) {
