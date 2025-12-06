@@ -71,3 +71,6 @@ perturba:
 
   frontend:
     url: ${PERTURBA_FRONTEND_URL:https://www.woojangpark.site}
+
+  ai:
+    base-url: https://ai.woojangpark.site

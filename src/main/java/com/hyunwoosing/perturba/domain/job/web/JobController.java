@@ -40,6 +40,7 @@ public class JobController {
         return jobService.listMyJobs(userId, guestId, page, size);
     }
 
+
     @PostMapping
     @Operation(
             summary = "작업 생성",
@@ -57,6 +58,7 @@ public class JobController {
         return ApiResponseFactory.success(jobService.create(req, userId, guestId, idemKey));
     }
 
+
     @GetMapping("/{publicId}/status")
     @Operation(
             summary = "작업 상태 조회, 폴링방식 (사용 안함)",
@@ -69,6 +71,7 @@ public class JobController {
         return ApiResponseFactory.success(jobService.getStatus(publicId));
     }
 
+
     @GetMapping("/{publicId}/result")
     @Operation(
             summary = "작업 결과 조회",
@@ -80,6 +83,7 @@ public class JobController {
     public ApiResponse<JobResultResponse> result(@PathVariable String publicId) {
         return ApiResponseFactory.success(jobService.getResult(publicId));
     }
+
 
     @PostMapping("/{publicId}/feedback")
     @Operation(

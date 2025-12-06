@@ -6,6 +6,7 @@ import com.hyunwoosing.perturba.domain.asset.entity.Asset;
 import com.hyunwoosing.perturba.domain.asset.repository.AssetRepository;
 import com.hyunwoosing.perturba.domain.guest.entity.GuestSession;
 import com.hyunwoosing.perturba.domain.guest.repository.GuestSessionRepository;
+import com.hyunwoosing.perturba.domain.job.aiclient.client.AiJobClient;
 import com.hyunwoosing.perturba.domain.job.entity.JobFeedback;
 import com.hyunwoosing.perturba.domain.job.entity.TransformJob;
 import com.hyunwoosing.perturba.domain.job.entity.enums.JobStatus;
@@ -44,6 +45,7 @@ public class JobService {
     private final GuestSessionRepository guestSessionRepository;
     private final JobFeedbackRepository jobFeedbackRepository;
     private final S3PresignService s3PresignService;
+    private final AiJobClient aiJobClient;
 
 
     //todo: 멱등키는 같은데 파라미터가 다른경우 에러처리 필요할듯.. 어디에서 에러를 터트릴지는 고민
@@ -97,6 +99,8 @@ public class JobService {
             }
             throw e;
         }
+        aiJobClient.sendFacePerturbJob(job);
+
         return JobMapper.toCreateJobResponse(job);
     }
 
