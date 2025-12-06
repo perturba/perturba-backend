@@ -69,6 +69,7 @@ public class InternalJobService {
                         .objectKey(key)
                         .mimeType("image/jpeg")
                         .status(AssetStatus.UPLOADING)
+                        .sha256Hex("0".repeat(64))
                         .build()
                 )
         );
