@@ -120,6 +120,7 @@ public class SecurityConfig {
                 "https://x.com",
                 "http://localhost:3000",
                 "https://www.woojangpark.site",
+                "https://api.woojangpark.site",
                 "chrome-extension://nooieeleecfckdjkjohcmdfoddadidne"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));

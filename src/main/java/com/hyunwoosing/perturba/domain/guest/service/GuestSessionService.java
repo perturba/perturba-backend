@@ -7,10 +7,11 @@ import com.hyunwoosing.perturba.domain.guest.entity.GuestSession;
 import com.hyunwoosing.perturba.domain.guest.repository.GuestSessionRepository;
 import com.hyunwoosing.perturba.domain.guest.web.dto.CreateGuestSessionResponse;
 import com.hyunwoosing.perturba.domain.guest.web.dto.GuestSessionMeResponse;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class GuestSessionService {
+
     private final GuestSessionRepository guestSessionRepository;
     private final AuthProps authProps;
 
@@ -40,25 +42,26 @@ public class GuestSessionService {
         long ttlSeconds = Duration.ofDays(ttlDays).getSeconds();
         Instant newExpiresAt = now.plusSeconds(ttlSeconds);
 
-        //기존 쿠키에서 게스트 세션 찾음
-        GuestSession session = findFromCookie(request, cookieName).filter(gs -> !isExpired(gs, now))
-                .orElseGet(() -> createNewSession(newExpiresAt));
 
-        if(!isExpired(session, now)) {
-            session.setExpiresAt(now);
-        }
+        GuestSession session = findFromCookie(request, cookieName).filter(gs -> !isExpired(gs, now)).orElseGet(() -> createNewSession(newExpiresAt));
+
+        session.setExpiresAt(newExpiresAt);
         guestSessionRepository.save(session);
 
-        Cookie cookie = new Cookie(cookieName, session.getPublicToken());
-        cookie.setHttpOnly(true);
-        cookie.setSecure(true);
-        cookie.setMaxAge((int) ttlSeconds);
-        cookie.setPath(cookiePath != null ? cookiePath : "/");
+        ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie
+                .from(cookieName, session.getPublicToken())
+                .httpOnly(true)
+                .secure(true)
+                .path((cookiePath != null && !cookiePath.isBlank()) ? cookiePath : "/")
+                .maxAge(ttlSeconds)
+                .sameSite("None");
+
         if (cookieDomain != null && !cookieDomain.isBlank()) {
-            cookie.setDomain(cookieDomain);
+            cookieBuilder.domain(cookieDomain);
         }
 
-        response.addCookie(cookie);
+        ResponseCookie cookie = cookieBuilder.build();
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         return CreateGuestSessionResponse.builder()
                 .expiresAt(session.getExpiresAt())
@@ -66,7 +69,7 @@ public class GuestSessionService {
     }
 
     @Transactional(readOnly = true)
-    public GuestSessionMeResponse me(Long guestId){
+    public GuestSessionMeResponse me(Long guestId) {
         GuestSession session = guestSessionRepository.findById(guestId).orElseThrow(() -> new AuthException(AuthErrorCode.NO_GUEST_SESSION, "게스트 정보가 없습니다."));
         return GuestSessionMeResponse.builder()
                 .expiresAt(session.getExpiresAt())
@@ -76,21 +79,25 @@ public class GuestSessionService {
 
 
 
+
     //private
     private Optional<GuestSession> findFromCookie(HttpServletRequest request, String cookieName) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null)
+        var cookies = request.getCookies();
+        if (cookies == null) {
             return Optional.empty();
+        }
 
         String token = null;
-        for (Cookie c : cookies) {
+        for (var c : cookies) {
             if (cookieName.equals(c.getName())) {
                 token = c.getValue();
                 break;
             }
         }
-        if (token == null || token.isBlank())
+
+        if (token == null || token.isBlank()) {
             return Optional.empty();
+        }
 
         return guestSessionRepository.findByPublicToken(token);
     }
@@ -101,7 +108,8 @@ public class GuestSessionService {
 
     private GuestSession createNewSession(Instant expiresAt) {
         String token = UUID.randomUUID().toString().replace("-", "");
-        String hashHex; //Sha-256 해시
+
+        String hashHex;
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(token.getBytes(StandardCharsets.UTF_8));
