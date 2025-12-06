@@ -119,7 +119,8 @@ public class SecurityConfig {
                 "https://twitter.com",
                 "https://x.com",
                 "http://localhost:3000",
-                "https://www.woojangpark.site"
+                "https://www.woojangpark.site",
+                "chrome-extension://nooieeleecfckdjkjohcmdfoddadidne"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
