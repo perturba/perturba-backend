@@ -1,15 +1,15 @@
 package com.hyunwoosing.perturba.common.config;
 
 import com.hyunwoosing.perturba.common.config.props.AuthProps;
+import com.hyunwoosing.perturba.common.security.filter.ApiKeyAuthFilter;
 import com.hyunwoosing.perturba.common.security.filter.GuestAuthFilter;
 import com.hyunwoosing.perturba.common.security.filter.JwtAuthFilter;
-import com.hyunwoosing.perturba.common.security.filter.ApiKeyAuthFilter;
+import com.hyunwoosing.perturba.domain.apikey.repository.ApiKeyRepository;
+import com.hyunwoosing.perturba.domain.apikey.service.ApiUsageService;
 import com.hyunwoosing.perturba.domain.auth.web.oauth.CustomOAuth2UserService;
 import com.hyunwoosing.perturba.domain.auth.web.oauth.OAuth2AuthFailureHandler;
 import com.hyunwoosing.perturba.domain.auth.web.oauth.OAuth2AuthSuccessHandler;
 import com.hyunwoosing.perturba.domain.guest.repository.GuestSessionRepository;
-import com.hyunwoosing.perturba.domain.apikey.repository.ApiKeyRepository;
-import com.hyunwoosing.perturba.domain.apikey.service.ApiUsageService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -17,15 +17,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import java.util.List;
 
@@ -34,19 +32,19 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2AuthSuccessHandler oAuth2AuthSuccessHandler;
     private final OAuth2AuthFailureHandler oAuth2AuthFailureHandler;
+
     private final GuestSessionRepository guestSessionRepository;
     private final AuthProps authProps;
 
-    //ApiKeyFilter Components
     private final ApiKeyRepository apiKeyRepository;
     private final ApiUsageService apiUsageService;
 
-
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         GuestAuthFilter guestAuthFilter = new GuestAuthFilter(guestSessionRepository, authProps);
         ApiKeyAuthFilter apiKeyAuthFilter = new ApiKeyAuthFilter(apiKeyRepository, apiUsageService);
 
@@ -67,7 +65,6 @@ public class SecurityConfig {
                         })
                 )
                 .authorizeHttpRequests(reg -> reg
-                        //공개 엔드포인트 todo: String[] 상수화로 변경
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
@@ -82,18 +79,15 @@ public class SecurityConfig {
                                 "/login/oauth2/**",
                                 "/v1/guest/session"
                         ).permitAll()
+
+                        // SSE 구독은 무조건 공개
                         .requestMatchers(HttpMethod.GET, "/v1/jobs/*/events").permitAll()
-                        .requestMatchers(
-                                "/v1/internal/**"
-                        ).permitAll()
 
-                        //API-Key 전용 외부 엔드포인트: ROLE_API 필요
+                        .requestMatchers("/v1/internal/**").permitAll()
+
                         .requestMatchers("/v1/external/**").hasRole("API")
-
-                        //내부 관리: 로그인 필요 (JWT/OAuth2)
                         .requestMatchers("/v1/apikeys/**").authenticated()
 
-                        //그 외는 일단 인증 요구
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(o -> o
@@ -103,6 +97,7 @@ public class SecurityConfig {
                         .successHandler(oAuth2AuthSuccessHandler)
                         .failureHandler(oAuth2AuthFailureHandler)
                 )
+                // 필터 순서: APIKey -> JWT -> Guest
                 .addFilterBefore(apiKeyAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(guestAuthFilter, JwtAuthFilter.class)
@@ -115,9 +110,6 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
-                "https://www.instagram.com",
-                "https://twitter.com",
-                "https://x.com",
                 "http://localhost:3000",
                 "https://www.woojangpark.site",
                 "https://api.woojangpark.site",
@@ -125,7 +117,7 @@ public class SecurityConfig {
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true); //쿠키허용
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

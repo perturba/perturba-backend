@@ -19,8 +19,12 @@ import java.util.concurrent.*;
 public class JobEventService {
 
     private static final long SSE_TIMEOUT_MS = Duration.ofMinutes(30).toMillis();
-    private final ObjectMapper om = new ObjectMapper();
+    private static final long KEEPALIVE_MS = Duration.ofSeconds(15).toMillis();
+
+    private final ObjectMapper om;
+
     private final ConcurrentMap<String, CopyOnWriteArrayList<SseEmitter>> registry = new ConcurrentHashMap<>();
+    private final ScheduledExecutorService keepAlivePool = Executors.newSingleThreadScheduledExecutor();
 
     public SseEmitter subscribe(String jobPublicId) {
         SseEmitter emitter = new SseEmitter(SSE_TIMEOUT_MS);
@@ -31,16 +35,31 @@ public class JobEventService {
         emitter.onError(e -> remove(jobPublicId, emitter));
 
         try {
-            emitter.send(SseEmitter.event().comment("connected"));
-            emitter.send("retry: 3000\n\n");
-        } catch (IOException ignored) {}
+            emitter.send(SseEmitter.event()
+                    .name("init")
+                    .id(UUID.randomUUID().toString())
+                    .reconnectTime(3000L)
+                    .data(om.writeValueAsString(Map.of("status", "CONNECTED")))
+            );
+        } catch (IOException e) {
+            remove(jobPublicId, emitter);
+            return emitter;
+        }
+
+        keepAlivePool.scheduleAtFixedRate(() -> {
+            if (!isRegistered(jobPublicId, emitter)) return;
+            try {
+                emitter.send(SseEmitter.event().comment("keepalive"));
+            } catch (IOException ex) {
+                remove(jobPublicId, emitter);
+            }
+        }, KEEPALIVE_MS, KEEPALIVE_MS, TimeUnit.MILLISECONDS);
 
         return emitter;
     }
 
     public void emitProgress(String jobPublicId) {
-        Map<String, Object> payload = Map.of("status", "PROGRESS");
-        broadcast(jobPublicId, "progress", payload, false);
+        broadcast(jobPublicId, "progress", Map.of("status", "PROGRESS"), false);
     }
 
     public void emitCompleted(String jobPublicId, Map<String, Object> resultPayload) {
@@ -50,30 +69,31 @@ public class JobEventService {
     }
 
     public void emitFailed(String jobPublicId, String reason) {
-        Map<String, Object> payload = Map.of("status", "FAILED", "reason", reason);
-        broadcast(jobPublicId, "failed", payload, true);
+        broadcast(jobPublicId, "failed", Map.of("status", "FAILED", "reason", reason), true);
     }
 
-
-
-    //private
     private void broadcast(String publicId, String event, Object data, boolean terminal) {
         List<SseEmitter> emitters = registry.get(publicId);
-        if (emitters == null || emitters.isEmpty())
-            return;
+        if (emitters == null || emitters.isEmpty()) return;
 
         for (SseEmitter em : emitters) {
             try {
                 em.send(SseEmitter.event()
                         .id(UUID.randomUUID().toString())
                         .name(event)
-                        .data(om.writeValueAsString(data)));
+                        .data(om.writeValueAsString(data))
+                );
                 if (terminal) em.complete();
             } catch (IOException e) {
                 remove(publicId, em);
             }
         }
         if (terminal) registry.remove(publicId);
+    }
+
+    private boolean isRegistered(String publicId, SseEmitter emitter) {
+        CopyOnWriteArrayList<SseEmitter> list = registry.get(publicId);
+        return list != null && list.contains(emitter);
     }
 
     private void remove(String publicId, SseEmitter emitter) {
